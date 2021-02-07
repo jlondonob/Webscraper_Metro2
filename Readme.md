@@ -1,7 +1,7 @@
 # Web Scraping Inmuebles Colombia
 
 Objetivos:
-- 
+-
 
 
 
@@ -17,7 +17,8 @@ Objetivos:
 **Cambiar de página con JavaScript (Dynamic Webpage)**
 1. [Beautiful Soup - Real Python](https://realpython.com/beautiful-soup-web-scraper-python/)
 2. [General - Real Python](https://realpython.com/python-web-scraping-practical-introduction/)
-3. Investigar sobre estos
+3. [Automatizar Web Browser](https://www.youtube.com/watch?v=Z8jhFLpk_S4&ab_channel=AlvaroChirou-HackingCiberseguridad)
+4. Investigar sobre estos
   ![Image](/Fig/Combination.png)
 
   ![Image](/Fig/Scrapy.png)
