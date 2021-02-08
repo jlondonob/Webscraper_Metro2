@@ -1,4 +1,4 @@
-# Web Scraping Inmuebles Colombia
+s# Web Scraping Inmuebles Colombia
 
 Objetivos:
 -
@@ -7,7 +7,7 @@ Objetivos:
 
 ## Sitios Para Investigar
 
-1. [Coordenada Urbana](https://realpython.com/python-web-scraping-practical-introduction/)
+1. [Coordenada Urbana](http://ww2.coordenadaurbana.com/)
 
 
 
