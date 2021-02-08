@@ -1,4 +1,4 @@
-s# Web Scraping Inmuebles Colombia
+# Web Scraping Inmuebles Colombia
 
 Objetivos:
 -
