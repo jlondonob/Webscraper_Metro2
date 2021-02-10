@@ -1,1 +1,5 @@
-.DS_Store
+#OS junk files
+*.DS_Store
+
+#Jupyter Notebook Checkpoints
+*.ipynb_checkpoints

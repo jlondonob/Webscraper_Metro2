@@ -2,6 +2,10 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait #para esperar a que pagina cargue JavaScript
 from selenium.webdriver.common.keys import Keys #para escribir en la pagina
 
+# usados para esperar a que aparezcan contenedores de casas
+from selenium.webdriver.support.expected_conditions import presence_of_element_located
+from selenium.webdriver.common.by import By
+
 url = 'https://www.metrocuadrado.com/casas/arriendo/medellin/'
 driver_path = '/Users/puchu/Desktop/WebScraper_Metro2/chromedriver'
 
