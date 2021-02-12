@@ -1,4 +1,5 @@
 # ------- Aprender a manipular listas ------#
+# Nota: instalar pylance para mejor autocomplete en vscode
 
 #Creamos objetos a y b 
 a = ['Hola', 'Adios']
@@ -39,3 +40,21 @@ df.index
 df.columns
 
 df.to_numpy() #turns arrray from pandas to numpy. Fast computing! But cannot mix data types
+
+df.describe() # equivalente a summary() de R
+df.T          # transpose the dataframe
+df.sort_index(axis=1, ascending=False) #sorts columns in descending order. Use axis=0 to sort rows (index)
+df.sort_values(by="C")
+
+df["A"]
+df[0:3] #Selects rows 1 to 3
+
+df.loc[dates[0]] # recordar que el objeto 'dates' contiene las fechas del indice
+df.loc[:,["A", "B"]] #con .loc accedemos a nomenclatura de filas y columnas
+df.loc[dates[0],"A"]
+
+df.iloc[0:3] #used to select based on row number
+df.loc[0:3] #used to select based on index names
+
+
+

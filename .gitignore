@@ -182,4 +182,7 @@ dmypy.json
 # profiling data
 .prof
 
+# vscode
+.vscode
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,jupyternotebooks,python
