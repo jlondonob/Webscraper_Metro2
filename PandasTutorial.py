@@ -56,5 +56,34 @@ df.loc[dates[0],"A"]
 df.iloc[0:3] #used to select based on row number
 df.loc[0:3] #used to select based on index names
 
+df.iloc[0:3,:] #explicitly filter rows
+
+df[df["A"]>0] #filter by column condition
+df[df > 0.1]
+
+#using the isin method
+
+df2 = df.copy()
+df2["E"] = ["one", "one", "two", "three", "four", "three"]
+
+df2[df2["E"].isin(["two","four"])]
+
+#setting values at a specific position
+
+# by names
+df.at[dates[0],"A"] = 0
+
+#by position
+df.iat[0,1] = 0
+
+## MISSING GATA
+
+# methos dropna() and fillna
+
+## APPLY
+
+df.apply(lambda x: x.max() - x.min())
+
+
 
 
