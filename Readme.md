@@ -1,30 +1,15 @@
-# Web Scraping Inmuebles Colombia
+# Colombian Real Estate Listings Scraper
 
-Objetivos:
--
+## About The Project
 
-
-
-## Sitios Para Investigar
-
-1. [Coordenada Urbana](http://ww2.coordenadaurbana.com/)
+There are currently few existing datasets that monitor the state of the Colombian real estate market. Unfortunately, they are privately held and not available to the general public. This project attempts to collect this data using scraping techniques with the end goal of making it available to all interested public.
 
 
+## Usage
 
+## Contact
 
-## Solución de Problemas
+Santiago Bohorquez [sbohorqu@eafit.edu.co](sbohorqu@eafit.edu.co)
+José Londoño [jlondonobo@eafit.edu.co](jlondonobo@eafit.edu.co)
 
-**Cambiar de página con JavaScript (Dynamic Webpage)**
-1. [Beautiful Soup - Real Python](https://realpython.com/beautiful-soup-web-scraper-python/)
-2. [General - Real Python](https://realpython.com/python-web-scraping-practical-introduction/)
-3. [Automatizar Web Browser](https://www.youtube.com/watch?v=Z8jhFLpk_S4&ab_channel=AlvaroChirou-HackingCiberseguridad)
-4. Investigar sobre estos
-  ![Image](/Fig/Combination.png)
-
-  ![Image](/Fig/Scrapy.png)
-
-
-
-**Extraer coordenadas de Leaflet**
-1. [Pregunta (1) Stack Overflow](https://stackoverflow.com/questions/44353476/get-coordinates-from-leaflet-app-embedded-in-webpage-using-python-scraping)
-2. [Coordenadas Tiendas Chipotle](https://www.youtube.com/watch?v=ZFoQleFUH9Y&feature=youtu.be&ab_channel=Stetsonator)
+Project Link: [https://github.com/jlondonob/Webscraper_Metro2](https://github.com/jlondonob/Webscraper_Metro2)
