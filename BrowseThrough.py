@@ -24,7 +24,7 @@ with webdriver as driver:
     accept_cookies_button = driver.find_element_by_css_selector('.disclamer-action a')
     accept_cookies_button.click()  
 
-    # Locates next page button for further use
+    # Locates next page button for further use.  Also creates an empty arrow_disabled object
     next_page_button = driver.find_element_by_css_selector('.item-icon-next a')
     arrow_disabled = driver.find_elements_by_css_selector('.item-icon-next.page-item.disabled')
 
