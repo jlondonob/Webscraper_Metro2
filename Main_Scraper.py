@@ -16,6 +16,12 @@ webdriver = webdriver.Chrome(
     executable_path=driver_path,
     options=chrome_options
 )
+# Sets number of pages that the scraper will analyze. In the future the script
+# will detect this number automatically. Either through:
+# 1. Condition to stop if cannot go further.
+# 2. Scrapes number of pages located at bottom of webpage and uses as input.
+
+number_pages = 10
 
 # Open webdriver
 with webdriver as driver:
