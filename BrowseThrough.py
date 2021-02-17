@@ -41,3 +41,5 @@ with webdriver as driver:
             arrow_disabled = driver.find_elements_by_css_selector('.item-icon-next.page-item.disabled')
 
     driver.close()
+# Note: To run the app from VSCode select lines up until driver.close() If you select until one line BELOW driver.close() the app wont open.
+# In other words the app wont run if your cursor is standing on an empty line below the actual code.
