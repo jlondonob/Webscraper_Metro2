@@ -1,4 +1,17 @@
 import scrapy
+import csv   # To read links stored in a csv file. Don'y know if json file would
+             # be more efficient
+
+# Store links retrieved in previous step (Main_scraper.py) in object
+global_links = []
+filepath = '/Users/puchu/Desktop/WebScraper_Metro2/urls.csv'
+with open(filepath, newline='') as csvfile:
+    reader = csv.reader(csvfile)
+
+    for row in reader:
+        global_links.append(row[0])
+
+global_links
 
 # This is the actual scraper
 class MetroScraper(scrapy.Spider):
@@ -6,7 +19,7 @@ class MetroScraper(scrapy.Spider):
     name = 'Metro2'
     
     # Gives URLs for spider to get
-    start_urls = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-los-cerros-el-vergel-4-habitaciones-2-banos/10583-M2783174']
+    start_urls = global_links
     # Scraping begins.
     def parse(self, response):
         # Retrieve all instances of .d-block h2::text
