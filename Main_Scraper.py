@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.options import Options # add headless option to d
 
 import json # save python object (list of links)
 
-url = 'https://www.metrocuadrado.com/casas/arriendo/medellin/'
+url = 'https://www.metrocuadrado.com/casas/venta/medellin/'
 driver_path = '/Users/puchu/Desktop/WebScraper_Metro2/chromedriver'
 
 chrome_options = Options()
@@ -42,13 +42,6 @@ with webdriver as driver:
     # Close Webdriver
     driver.close()
 
-# Write links in new file
+# Write links in new text file
 with open('house_links.txt','w') as fp:
     json.dump(links,fp)
-
-del(links)
-
-with open('house_links.txt','r') as fp:
-    links = json.load(fp)
-
-links
