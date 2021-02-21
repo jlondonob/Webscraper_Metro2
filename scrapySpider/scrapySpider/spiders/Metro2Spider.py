@@ -31,8 +31,6 @@ class MetroScraper(scrapy.Spider):
         
         # Print the desired information in output
         yield {
-            'casa':[
-                {
                     'rooms': main_stats[2],
                     'restrooms': main_stats[3],
                     'stratum': main_stats [4],
@@ -46,8 +44,6 @@ class MetroScraper(scrapy.Spider):
                     'area_private': details[6],
                     'admin price': details[7],
                     'description': description
-                }
-            ]
         }
 
 # We can run this spider by going to the scrapySpider mother file and using
