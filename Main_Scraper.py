@@ -4,6 +4,8 @@ from selenium.webdriver.support.ui import WebDriverWait #para esperar a que pagi
 from selenium.webdriver.common.keys import Keys #para escribir en la pagina
 from selenium.webdriver.chrome.options import Options # add headless option to driver
 
+import json # save python object (list of links)
+
 url = 'https://www.metrocuadrado.com/casas/arriendo/medellin/'
 driver_path = '/Users/puchu/Desktop/WebScraper_Metro2/chromedriver'
 
@@ -40,5 +42,13 @@ with webdriver as driver:
     # Close Webdriver
     driver.close()
 
-# Show that links were correctly retrieved
-links[0:5]
+# Write links in new file
+with open('house_links.txt','w') as fp:
+    json.dump(links,fp)
+
+del(links)
+
+with open('house_links.txt','r') as fp:
+    links = json.load(fp)
+
+links

@@ -1,25 +1,20 @@
 import scrapy
-import csv   # To read links stored in a csv file. Don'y know if json file would
-             # be more efficient
+import json # read house_links.txt
 
 # Store links retrieved in previous step (Main_scraper.py) in object
-global_links = []
-filepath = '/Users/puchu/Desktop/WebScraper_Metro2/urls.csv'
-with open(filepath, newline='') as csvfile:
-    reader = csv.reader(csvfile)
+path_to_houselinks = '/Users/puchu/Desktop/WebScraper_Metro2/house_links.txt'
 
-    for row in reader:
-        global_links.append(row[0])
+with open(path_to_houselinks,'r') as fp:
+    house_links = json.load(fp)
 
-global_links
-
+len(house_links)
 # This is the actual scraper
 class MetroScraper(scrapy.Spider):
     # Gives a name to the spider. This will be used to call it through the terminal
     name = 'Metro2'
     
     # Gives URLs for spider to get
-    start_urls = global_links
+    start_urls = house_links
     # Scraping begins.
     def parse(self, response):
         # Retrieve all instances of .d-block h2::text
