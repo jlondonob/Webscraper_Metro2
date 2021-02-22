@@ -7,7 +7,7 @@ with open(path_to_houselinks,'r') as fp:
     global_urls = json.load(fp)
 
 # Set up short list of urls to test the app
-test_urls = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-la-mota-3-habitaciones-3-banos-1-garajes/12358-M2784961']
+test_urls = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-belencito-3-habitaciones-2-banos-1-garajes/10899-V3192']
 
 # This is the actual scraper
 class MetroScraper(scrapy.Spider):
@@ -16,16 +16,39 @@ class MetroScraper(scrapy.Spider):
     name = 'Metro2'
     
     # Gives URLs for spider to get.
-    start_urls = global_urls    #currently in test mode. when ready use `house_links`
+    start_urls = global_urls    #currently in test mode. when ready use `global_urls`
     # Scraping begins.
     def parse(self, response):
         # Retrieve all instances of .d-block h2::text
-        main_stats = response.css('.d-block h2::text').getall()
-            #price = response.css('.d-sm-none .eovJcI::text').getall()
-        subtitle = response.css('.card-headline .card-subtitle::text').get()
-        agent = response.css('.mb-md-0::text').get()
-        details = response.css('.card-details .card-text::text').getall()
-        description = response.css('.mb-3.card-text::text').get()
+        main_stats = response.css(
+            '.d-block h2::text').getall()
+        subtitle = response.css(
+            '.card-headline .card-subtitle::text').get()
+        agent = response.css(
+            '.mb-md-0::text').get()
+        details = response.css(
+            '.card-details .card-text::text').getall()
+        description = response.css(
+            '.mb-3.card-text::text').get()
+        
+        # Save admin price as admin_price if admin price exists.
+        has_admin = response.xpath("//*[contains(text(), 'Valor administración')]").getall()                           #implementation from stack overflow
+        if len(has_admin)>0:
+            admin_price = response.xpath(
+                "(//p[preceding::*[contains(text(), 'Valor administración')]]/text())[1]").get() # text of first tag <p> after header with text `Valor Administracion`
+            admin_price = int(admin_price.replace('$','').replace('.',''))  # removes $ and . and turns into integer
+        else:
+            admin_price = float('nan')
+
+        # Save number of parking spaces if any exist
+        has_parking = response.xpath(
+            "//h3[contains(text(), 'Parqueaderos')]").getall()                           #implementation from stack overflow
+        if len(has_parking)>0:
+            parking = response.xpath(
+                "(//p[preceding::h3[contains(text(), 'Parqueaderos')]]/text())[1]").get()
+            parking = int(parking.replace('$','').replace('.',''))  # removes $ and . and turns into integer
+        else:
+            parking = int(0)
         
         # Print the desired information in output
         yield {
@@ -39,10 +62,11 @@ class MetroScraper(scrapy.Spider):
                     'neighborhood_common': details[1],
                     'neighborhood_official': details[2],
                     'price' : int(details[3].replace('$','').replace('.','')),       #removes $ and thousand separators
+                    'parking_places' : parking,
                     'age': details[4],
                     'area_built': int(details[5].split(' ')[0]),                     #removes 'm2'
                     'area_private': int(details[6].split(' ')[0]),                   #removes 'm2'
-                    'admin_price': int(details[7].replace('$','').replace('.','')),  #removes $ and thousand separators
+                    'admin_price': admin_price,                                      #removes $ and thousand separators
                     'description': description
         }
 
