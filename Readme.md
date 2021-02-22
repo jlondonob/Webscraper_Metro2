@@ -9,8 +9,8 @@ There are currently few existing datasets that monitor the state of the Colombia
 
 ## Contact
 
-Santiago Bohorquez [sbohorqu@eafit.edu.co](sbohorqu@eafit.edu.co)
+Santiago Bohorquez [sbohorqu@eafit.edu.co](mailto:sbohorqu@eafit.edu.co)
 
-José Londoño [jlondonobo@eafit.edu.co](jlondonobo@eafit.edu.co)
+José Londoño [jlondonobo@eafit.edu.co](mailto:jlondonobo@eafit.edu.co)
 
 Project Link: [https://github.com/jlondonob/Webscraper_Metro2](https://github.com/jlondonob/Webscraper_Metro2)
