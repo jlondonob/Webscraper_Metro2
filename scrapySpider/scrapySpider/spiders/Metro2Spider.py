@@ -7,7 +7,7 @@ with open(path_to_houselinks,'r') as fp:
     global_urls = json.load(fp)
 
 # Set up short list of urls to test the app
-test_urls = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-santa-cruz-de-la-rosa-2-habitaciones-1-banos/11705-3291509']
+test_urls = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-loma-de-los-bernal-5-habitaciones-4-banos-2-garajes/11281-M2789539']
 
 # Scraper body
 class MetroScraper(scrapy.Spider):
@@ -16,7 +16,7 @@ class MetroScraper(scrapy.Spider):
     name = 'Metro2'
 
     # List of URLs 
-    start_urls = global_urls    # Use `global_urls` when ready to use
+    start_urls = test_urls    # Use `global_urls` when ready to use
     
     
     #|-------------| SELECTING HTML ELEMENTS TO RETRIEVE |------------------- #
@@ -100,7 +100,7 @@ class MetroScraper(scrapy.Spider):
                     'area_built': float(details[5].split(' ')[0]),                     #removes 'm2'
                     'area_private': float(details[6].split(' ')[0]),                   #removes 'm2'
                     'admin_price': admin_price,                                      #removes $ and thousand separators
-                    'description': description
+                    'description': description.replace('\n',' ')
         }
 
 # We can run this spider by going to the scrapySpider mother file and using
