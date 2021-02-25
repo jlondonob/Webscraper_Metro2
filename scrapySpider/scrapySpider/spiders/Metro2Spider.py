@@ -100,7 +100,7 @@ class MetroScraper(scrapy.Spider):
                     'area_built': float(details[5].split(' ')[0]),                     #removes 'm2'
                     'area_private': float(details[6].split(' ')[0]),                   #removes 'm2'
                     'admin_price': admin_price,                                      #removes $ and thousand separators
-                    'description': description.replace('\n',' ')
+                    'description': " ".join(description.split())
         }
 
 # We can run this spider by going to the scrapySpider mother file and using
