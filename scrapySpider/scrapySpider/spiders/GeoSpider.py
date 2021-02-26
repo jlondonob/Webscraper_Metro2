@@ -11,8 +11,14 @@ from ..items import PropertyItem
 #---------------------| ESTE SCRAPER ES JESUCRISTO |-----------------------------------#
 #--------------------------------------------------------------------------------------#
 
-# Set up short list of urdataJson to test the app
-test_url = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-loma-de-los-bernal-5-habitaciones-4-banos-2-garajes/11281-M2789539']
+# Set up short list of urls to test the app
+test_url = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-loma-de-los-bernal-3-habitaciones-3-banos-1-garajes/11224-3307087']
+
+# Set global list of urls for deployment
+path2urls = '/Users/puchu/Desktop/WebScraper_Metro2/collectedURLS.txt'
+with open(path2urls,'r') as fp:
+    global_urls = json.load(fp)
+
 
 # Scraper body
 class GeoScraper(scrapy.Spider):
@@ -63,9 +69,20 @@ class GeoScraper(scrapy.Spider):
         property['garages'] = basic['garages']
         property['cityID'] = basic['city']['id']
         property['cityName'] = basic['city']['nombre']
-        property['zoneID'] = basic['zone']['id']
-        property['ZoneName'] = basic['zone']['nombre']
-        property['sectorName'] = basic['sector']['nombre']
+        
+        if basic['zone']==None:
+            property['zoneID'] = None
+            property['ZoneName'] = None
+        else:
+            property['zoneID'] = basic['zone']['id']
+            property['ZoneName'] = basic['zone']['nombre']
+            
+        if basic['sector']==None:
+            property['sectorName'] = None
+        else:
+            property['sectorName'] = basic['sector']['nombre']
+        
+        
         property['neighborhood'] = basic['neighborhood']
         property['commonNeighborhood'] = basic['commonNeighborhood']
         property['comment'] = " ".join(basic['comment'].split())
@@ -86,11 +103,28 @@ class GeoScraper(scrapy.Spider):
         property['latitude'] = basic['coordinates']['lat']
         property['longitude'] = basic['coordinates']['lon']
 
-        #Amenities
+        #Amenities (Error handling due to sometimes non-available data)
         property['amenitiesInteriors'] =  ", ".join(featured[0]['items'])
-        property['amenitiesExteriors'] = ", ".join(featured[1]['items'])
-        property['amenitiesCommonZones'] = ", ".join(featured[2]['items'])
-        property['ammenitiesSector'] = ", ".join(featured[3]['items'])
+        
+        try:
+            exteriors = ", ".join(featured[1]['items'])
+        except:
+            exteriors = None
+
+        try:
+            common = ", ".join(featured[2]['items'])
+        except:
+            common = None
+        
+        try:
+            sector = ", ".join(featured[3]['items'])
+        except :
+            sector = None
+
+        
+        property['amenitiesExteriors'] = exteriors
+        property['amenitiesCommonZones'] = common
+        property['ammenitiesSector'] = sector
 
         yield property
 

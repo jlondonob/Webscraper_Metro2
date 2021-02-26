@@ -8,6 +8,11 @@ from selenium.webdriver.common.by import By
 
 import json
 
+
+#########################CURRENT STATUSS #################
+Testing = True
+###########################################################
+
 url = 'https://www.metrocuadrado.com/casas/venta/medellin/'
 driver_path = '/Users/puchu/Desktop/WebScraper_Metro2/chromedriver'
 
@@ -18,6 +23,8 @@ webdriver = webdriver.Chrome(
     executable_path=driver_path,
     options=chrome_options
 )
+
+
 
 with webdriver as driver:
     
@@ -39,33 +46,35 @@ with webdriver as driver:
     links = driver.find_elements_by_css_selector('.card-result-img .sc-bdVaJa')
     links = [link.get_attribute('href') for link in links]
 
-    while True:
-        if len(arrow_disabled) > 0:
-            print('No more pages left')
-            break
-        else:
-            # Clicks next page and checks if button is disabled
-            next_page_button.click()
-            arrow_disabled = driver.find_elements_by_css_selector('.item-icon-next.page-item.disabled')
+    if Testing==False:
+        while True:
+            if len(arrow_disabled) > 0:
+                print('No more pages left')
+                break
+            else:
+                # Clicks next page and checks if button is disabled
+                next_page_button.click()
+                arrow_disabled = driver.find_elements_by_css_selector('.item-icon-next.page-item.disabled')
 
-            # Only purpose of this chunk is testing. It may be deleted
-            current_page=driver.find_element_by_css_selector('.page-item.active')
+                # Only purpose of this chunk is testing. It may be deleted
+                current_page=driver.find_element_by_css_selector('.page-item.active')
 
-            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.card-result-img .sc-bdVaJa')))
+                wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.card-result-img .sc-bdVaJa')))
 
-            # Gets links from specific page
-            links2 = driver.find_elements_by_css_selector('.card-result-img .sc-bdVaJa')
-            links2 = [link.get_attribute('href') for link in links2]
+                # Gets links from specific page
+                links2 = driver.find_elements_by_css_selector('.card-result-img .sc-bdVaJa')
+                links2 = [link.get_attribute('href') for link in links2]
 
-            print('Number of urls scraped at page' + current_page.text + ':' + str(len(links2)))
+                print('Number of urls scraped at page' + current_page.text + ':' + str(len(links2)))
 
-            # Appends new links to links object
-            links.extend(links2)
-
-    driver.close()
+                # Appends new links to links object
+                links.extend(links2)
+        driver.close()
+    else:
+        driver.close()
+        print('Testing mode: ON')
 # Note: To run the app from VSCode select lines up until driver.close() If you select until one line BELOW driver.close() the app wont open.
 # In other words the app wont run if your cursor is standing on an empty line below the actual code.
 
-len(links)
 with open('house_links.txt','w') as fp:
     json.dump(links,fp)

@@ -2,8 +2,8 @@ import scrapy
 import json # read house_links.txt
 
 # Store links retrieved in previous step (Main_scraper.py) in object
-path_to_houselinks = '/Users/puchu/Desktop/WebScraper_Metro2/house_links.txt'
-with open(path_to_houselinks,'r') as fp:
+path2urls = '/Users/puchu/Desktop/WebScraper_Metro2/collectedURLS.txt'
+with open(path2urls,'r') as fp:
     global_urls = json.load(fp)
 
 # Set up short list of urls to test the app
@@ -16,7 +16,7 @@ class MetroScraper(scrapy.Spider):
     name = 'Metro2'
 
     # List of URLs 
-    start_urls = test_urls    # Use `global_urls` when ready to use
+    start_urls = global_urls    # Use `global_urls` when ready to use
     
     
     #|-------------| SELECTING HTML ELEMENTS TO RETRIEVE |------------------- #
