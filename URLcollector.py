@@ -10,7 +10,7 @@ import json
 
 
 #########################CURRENT STATUSS #################
-Testing = True
+Testing = False
 ###########################################################
 
 url = 'https://www.metrocuadrado.com/casas/venta/medellin/'
@@ -76,5 +76,5 @@ with webdriver as driver:
 # Note: To run the app from VSCode select lines up until driver.close() If you select until one line BELOW driver.close() the app wont open.
 # In other words the app wont run if your cursor is standing on an empty line below the actual code.
 
-with open('house_links.txt','w') as fp:
+with open('collectedURLS.txt','w') as fp:
     json.dump(links,fp)

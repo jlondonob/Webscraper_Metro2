@@ -12,7 +12,7 @@ from ..items import PropertyItem
 #--------------------------------------------------------------------------------------#
 
 # Set up short list of urls to test the app
-test_url = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-loma-de-los-bernal-3-habitaciones-3-banos-1-garajes/11224-3307087']
+test_url = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-belencito-4-habitaciones-4-banos/2895-1042303']
 
 # Set global list of urls for deployment
 path2urls = '/Users/puchu/Desktop/WebScraper_Metro2/collectedURLS.txt'
@@ -27,7 +27,7 @@ class GeoScraper(scrapy.Spider):
     name = 'GeoSpider'
 
     # List of URLs 
-    start_urls = test_url
+    start_urls = global_urls
 
     def parse(self, response):
         
@@ -55,8 +55,8 @@ class GeoScraper(scrapy.Spider):
         property = PropertyItem()
         
         #Basic Data
-        property['propType'] = basic['propertyId']
-        property['propID'] = basic['propertyType']['nombre']
+        property['propID'] = basic['propertyId']
+        property['propType'] = basic['propertyType']['nombre']
         property['businessType'] = basic['businessType']
         property['publicationStatus'] = basic['publicationStatus']
         property['salePrice'] = basic['salePrice']
@@ -104,7 +104,14 @@ class GeoScraper(scrapy.Spider):
         property['longitude'] = basic['coordinates']['lon']
 
         #Amenities (Error handling due to sometimes non-available data)
-        property['amenitiesInteriors'] =  ", ".join(featured[0]['items'])
+        
+        #////////////// OPTIMIZABLE\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        #I think this section can be optimized by assigning direct values
+        #to property object inside try:
+        try:
+            interiors = ", ".join(featured[0]['items'])
+        except:
+            interiors = None
         
         try:
             exteriors = ", ".join(featured[1]['items'])
@@ -121,11 +128,11 @@ class GeoScraper(scrapy.Spider):
         except :
             sector = None
 
-        
+        property['amenitiesInteriors'] = interiors
         property['amenitiesExteriors'] = exteriors
         property['amenitiesCommonZones'] = common
         property['ammenitiesSector'] = sector
-
+        #\\\\\\\\\\\\\\\\\\\___________/////////////////////////////
         yield property
 
 # We can run this spider by going to the scrapySpider mother file and using
