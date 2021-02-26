@@ -1,7 +1,15 @@
+
+# Import libraries
 import scrapy
 import re
 import json
 
+# Import Porperty Item
+from ..items import PropertyItem
+
+#--------------------------------------------------------------------------------------#
+#---------------------| ESTE SCRAPER ES JESUCRISTO |-----------------------------------#
+#--------------------------------------------------------------------------------------#
 
 # Set up short list of urdataJson to test the app
 test_url = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-loma-de-los-bernal-5-habitaciones-4-banos-2-garajes/11281-M2789539']
@@ -27,58 +35,64 @@ class GeoScraper(scrapy.Spider):
         if dataClean:
             dataJson = json.loads(dataClean[0])
         
-        #Main Path
+        # Website Main Path to JSON
         main_branch = dataJson['props']['initialState']['realestate']
 
-        #Paths
-        basic = dataJson['props']['initialState']['realestate']['basic']
-        featured = dataJson['props']['initialState']['realestate']['basic']['featured']
+        # Recurrent Paths to data inside JSON
+        basic = main_branch['basic']
+        featured = main_branch['basic']['featured']
 
-        yield {
-            
-            #Basic Information
-            'propID' : basic['propertyId'],
-            'propType' : basic['propertyType']['nombre'],
-            'businessType' : basic['businessType'],
-            'publicationStatus' : basic['publicationStatus'],
-            'salePrice' : basic['salePrice'],
-            'rentPrice' : basic['rentPrice'],
-            'rentTotalPrice' : basic['rentTotalPrice'],
-            'areaBuilt' : basic['area'],
-            'areaPrivate' : basic['areac'],
-            'rooms' : basic['rooms'],
-            'bathrooms' : basic['bathrooms'],
-            'garages' : basic['garages'],
-            'cityID' : basic['city']['id'],
-            'cityName' : basic['city']['nombre'],
-            'zoneID' : basic['zone']['id'],
-            'ZoneName' : basic['zone']['nombre'],
-            'sectorName' : basic['sector']['nombre'],
-            'neighborhood' : basic['neighborhood'],
-            'commonNeighborhood' : basic['commonNeighborhood'],
-            'comment' : " ".join(basic['comment'].split()),
+        # We create a Property object and store some data in it.
+        # It looks funny because we are taking data from one dictionary
+        # to another dictionary. Note that all information to the rigth
+        # of the equal sign comes from data stored as JSON in the webpage.
+        property = PropertyItem()
+        
+        #Basic Data
+        property['propType'] = basic['propertyId']
+        property['propID'] = basic['propertyType']['nombre']
+        property['businessType'] = basic['businessType']
+        property['publicationStatus'] = basic['publicationStatus']
+        property['salePrice'] = basic['salePrice']
+        property['rentPrice'] = basic['rentPrice']
+        property['rentTotalPrice'] = basic['rentTotalPrice']
+        property['areaBuilt'] = basic['area']
+        property['areaPrivate'] = basic['areac']
+        property['rooms'] = basic['rooms']
+        property['bathrooms'] = basic['bathrooms']
+        property['garages'] = basic['garages']
+        property['cityID'] = basic['city']['id']
+        property['cityName'] = basic['city']['nombre']
+        property['zoneID'] = basic['zone']['id']
+        property['ZoneName'] = basic['zone']['nombre']
+        property['sectorName'] = basic['sector']['nombre']
+        property['neighborhood'] = basic['neighborhood']
+        property['commonNeighborhood'] = basic['commonNeighborhood']
+        property['comment'] = " ".join(basic['comment'].split())
+        
+        #Company Data
+        property['companyId'] = basic['companyId']
+        property['companyName'] = basic['companyName']
+        property['companyAddress'] = basic['companyAddress']
+        property['contactPhone'] = basic['contactPhone']
+        
+        #Other Data
+        property['propertyState'] = basic['propertyState']
+        property['builtTime'] = basic['builtTime']
+        property['stratum'] = basic['stratum']
 
-            #Company Data
-            'companyId' : basic['companyId'],
-            'companyName' : basic['companyName'],
-            'companyAddress' : basic['companyAddress'],
-            'contactPhone' : basic['contactPhone'],
-            'propertyState' : basic['propertyState'],
 
-            #Other Data
-            'builtTime' : basic['builtTime'],
-            'stratum' : basic['stratum'],
+        #Georeference
+        property['latitude'] = basic['coordinates']['lat']
+        property['longitude'] = basic['coordinates']['lon']
 
-            #Georeference
-            'latitude' : basic['coordinates']['lat'],
-            'longitude' : basic['coordinates']['lon'],
+        #Amenities
+        property['amenitiesInteriors'] =  ", ".join(featured[0]['items'])
+        property['amenitiesExteriors'] = ", ".join(featured[1]['items'])
+        property['amenitiesCommonZones'] = ", ".join(featured[2]['items'])
+        property['ammenitiesSector'] = ", ".join(featured[3]['items'])
 
-            #Amenities
-            'amenitiesInteriors' : ", ".join(featured[0]['items']),
-            'amenitiesExteriors' : ", ".join(featured[1]['items']),
-            'amenitiesCommonZones' : ", ".join(featured[2]['items']),
-            'ammenitiesSector' : ", ".join(featured[3]['items'])
-        }
+        yield property
 
 # We can run this spider by going to the scrapySpider mother file and using
 # 1. scrapy crawl Metro2
