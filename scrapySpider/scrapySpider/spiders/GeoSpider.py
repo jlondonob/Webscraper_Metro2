@@ -4,6 +4,8 @@ import scrapy
 import re
 import json
 from unidecode import unidecode as rm_accent #remove accents
+import sys
+import time
 
 # Import Porperty Item
 from ..items import PropertyItem
@@ -20,8 +22,15 @@ path2urls = '/Users/puchu/Desktop/WebScraper_Metro2/collectedURLS.txt'
 with open(path2urls,'r') as fp:
     global_urls = json.load(fp)
 
-print('Scraping ' + len(global_urls) + ' properties from Metro Cuadrado')
-print('Under current download_speed this should take aprox ' + len(global_urls)/95 + ' minutes')
+print(f'Scraping {len(global_urls):,} properties from Metro Cuadrado.\n')
+print(f'Under current download_speed this should take aprox. {len(global_urls)/95:2f} minutes or {(len(global_urls)/95)/60:.2f} hours.\n')
+
+s1 = input('Do you want to continue? [y/n]')
+if s1.lower() == "n":
+    print('GeoSpider will close')
+    time.sleep(2)
+    sys.exit(0)
+
 
 # Scraper body
 class GeoScraper(scrapy.Spider):
