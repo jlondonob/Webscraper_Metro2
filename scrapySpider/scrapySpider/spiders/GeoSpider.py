@@ -3,6 +3,7 @@
 import scrapy
 import re
 import json
+from unidecode import unidecode as rm_accent #remove accents
 
 # Import Porperty Item
 from ..items import PropertyItem
@@ -12,13 +13,15 @@ from ..items import PropertyItem
 #--------------------------------------------------------------------------------------#
 
 # Set up short list of urls to test the app
-test_url = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-belencito-4-habitaciones-4-banos/2895-1042303']
+test_url = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-san-lucas-5-habitaciones-5-banos/12133-380']
 
 # Set global list of urls for deployment
 path2urls = '/Users/puchu/Desktop/WebScraper_Metro2/collectedURLS.txt'
 with open(path2urls,'r') as fp:
     global_urls = json.load(fp)
 
+print('Scraping ' + len(global_urls) + ' properties from Metro Cuadrado')
+print('Under current download_speed this should take aprox ' + len(global_urls)/95 + ' minutes')
 
 # Scraper body
 class GeoScraper(scrapy.Spider):
@@ -27,7 +30,7 @@ class GeoScraper(scrapy.Spider):
     name = 'GeoSpider'
 
     # List of URLs 
-    start_urls = global_urls
+    start_urls = test_url
 
     def parse(self, response):
         
@@ -68,7 +71,7 @@ class GeoScraper(scrapy.Spider):
         property['bathrooms'] = basic['bathrooms']
         property['garages'] = basic['garages']
         property['cityID'] = basic['city']['id']
-        property['cityName'] = basic['city']['nombre']
+        property['cityName'] = rm_accent(basic['city']['nombre'])
         
         if basic['zone']==None:
             property['zoneID'] = None
@@ -85,11 +88,11 @@ class GeoScraper(scrapy.Spider):
         
         property['neighborhood'] = basic['neighborhood']
         property['commonNeighborhood'] = basic['commonNeighborhood']
-        property['comment'] = " ".join(basic['comment'].split())
+        property['comment'] = rm_accent(" ".join(basic['comment'].split()))
         
         #Company Data
         property['companyId'] = basic['companyId']
-        property['companyName'] = basic['companyName']
+        property['companyName'] = rm_accent(basic['companyName'])
         property['companyAddress'] = basic['companyAddress']
         property['contactPhone'] = basic['contactPhone']
         
@@ -128,10 +131,10 @@ class GeoScraper(scrapy.Spider):
         except :
             sector = None
 
-        property['amenitiesInteriors'] = interiors
-        property['amenitiesExteriors'] = exteriors
-        property['amenitiesCommonZones'] = common
-        property['ammenitiesSector'] = sector
+        property['amenitiesInteriors'] = rm_accent(interiors)
+        property['amenitiesExteriors'] = rm_accent(exteriors)
+        property['amenitiesCommonZones'] = rm_accent(common)
+        property['ammenitiesSector'] = rm_accent(sector)
         #\\\\\\\\\\\\\\\\\\\___________/////////////////////////////
         yield property
 
