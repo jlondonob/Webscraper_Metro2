@@ -10,6 +10,9 @@ import time
 # Import Porperty Item
 from ..items import PropertyItem
 
+# NOTE: All 'DTESTING' chunks should be deleted (or turned into comments) for deployment
+#       'PTESTING' chunks may stay if desired.
+
 #--------------------------------------------------------------------------------------#
 #---------------------| ESTE SCRAPER ES JESUCRISTO |-----------------------------------#
 #--------------------------------------------------------------------------------------#
@@ -23,8 +26,9 @@ with open(path2urls,'r') as fp:
     global_urls = json.load(fp)
 
 print(f'Scraping {len(global_urls):,} properties from Metro Cuadrado.\n')
-print(f'Under current download_speed this should take aprox. {len(global_urls)/95:2f} minutes or {(len(global_urls)/95)/60:.2f} hours.\n')
+print(f'Under current download_speed this should take aprox. {len(global_urls)/95:.2f} minutes or {(len(global_urls)/95)/60:.2f} hours.\n')
 
+#DTESTING: 
 s1 = input('Do you want to continue? [y/n]')
 if s1.lower() == "n":
     print('GeoSpider will close')
