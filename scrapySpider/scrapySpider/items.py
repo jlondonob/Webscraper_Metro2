@@ -17,7 +17,6 @@ class PropertyItem(scrapy.Item):
     rentPrice = scrapy.Field()
     rentTotalPrice = scrapy.Field()
     areaBuilt = scrapy.Field()
-    areaPrivate = scrapy.Field()
     rooms = scrapy.Field()
     bathrooms = scrapy.Field()
     garages = scrapy.Field()
@@ -28,7 +27,13 @@ class PropertyItem(scrapy.Item):
     sectorName = scrapy.Field()
     neighborhood = scrapy.Field()
     commonNeighborhood = scrapy.Field()
+    propAddress = scrapy.Field()
+    floor = scrapy.Field()
+    adminPrice = scrapy.Field()
+    
+    #Listing Information
     comment = scrapy.Field()
+    numPictures = scrapy.Field()
     
     #Company Data
     companyId = scrapy.Field()

@@ -79,7 +79,6 @@ class GeoScraper(scrapy.Spider):
         property['rentPrice'] = basic['rentPrice']
         property['rentTotalPrice'] = basic['rentTotalPrice']
         property['areaBuilt'] = basic['area']
-        property['areaPrivate'] = basic['areac']
         property['rooms'] = basic['rooms']
         property['bathrooms'] = basic['bathrooms']
         property['garages'] = basic['garages']
@@ -113,6 +112,7 @@ class GeoScraper(scrapy.Spider):
         property['propertyState'] = basic['propertyState']
         property['builtTime'] = basic['builtTime']
         property['stratum'] = basic['stratum']
+        property['adminPrice'] = basic['detail']['adminPrice']
 
 
         #Georeference

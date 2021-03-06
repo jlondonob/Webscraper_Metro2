@@ -4,6 +4,7 @@ import scrapy
 from scrapy.exceptions import CloseSpider
 from scrapy.http import Request
 from urllib.parse import urljoin
+from unidecode import unidecode as rm_accent #remove accents
 
 import re
 import json
@@ -52,17 +53,81 @@ class FincaraizSpider(scrapy.Spider):
         yield Request(URL.format(self.page_number))
 
     def parse_prop(self, response):
-        #property = PropertyItem()
+        # Retrieve JSON data stored in HTML as text
         dataRaw = response.xpath("//script[contains(., 'var sfAdvert = ')]").get()
         dataClean = re.findall(
             pattern = "(?<=var sfAdvert = )(.*)(?=;)",
             string= dataRaw)
-
-        dataJson = []
+        # Turn text into actual readable JSON data object
+        FincaRaiz = []
         if dataClean:
-            dataJson = json.loads(dataClean[0])
+            FincaRaiz = json.loads(dataClean[0])
 
-        yield{
-            'Name' : dataJson['Title'],
-            'Price' : dataJson['FormatedPrice']
-        }
+        # -------------------- START FILLING PROPERTY ITEM --------------------- #
+        #1. Create Property Item
+        property = PropertyItem()
+
+        #2. Populate item
+
+        # -- Sale information
+        property['propID'] = FincaRaiz['AdvertId'] 
+        # -- Retrieve the type of property (casa/apartment) from the title
+        property['propType'] = re.findall(
+            pattern = "(.*?)[\s]",          # This means: select everything up to a space (\s)
+            string = FincaRaiz['Title']     # From the tile
+            )[0]                            # Take the first word only
+
+        # -- Company information
+        property['companyId'] = FincaRaiz['ClientId']
+        property['companyName'] = rm_accent(FincaRaiz['ClientName'])
+        
+        property['propertyState'] = FincaRaiz['AdvertType']
+        property['businessType'] = FincaRaiz['TransactionType'] 
+        property['salePrice'] = FincaRaiz['Price'] 
+        property['areaBuilt'] = FincaRaiz['Surface'] 
+        property['rooms'] = FincaRaiz['Rooms'] 
+        property['bathrooms'] = FincaRaiz['Baths'] 
+        property['garages'] = FincaRaiz['Garages'] 
+        property['floor'] = re.findall("\d+" , FincaRaiz['Floor']) # Only selects digits (of any length)
+        property['cityID'] = FincaRaiz['Location2Id'] 
+        property['cityName'] = rm_accent(FincaRaiz['Location2'])
+        
+        property['zoneID'] = FincaRaiz['Location3Id']
+        property['ZoneName'] = rm_accent(FincaRaiz['Location3'])
+        property['propAddress'] = FincaRaiz['Address']
+        property['neighborhood'] = rm_accent(FincaRaiz['Location4'])
+        property['commonNeighborhood'] =rm_accent(FincaRaiz['Location4'])
+        property['comment'] = rm_accent(FincaRaiz['Description'])
+        
+        
+        #Other Data
+        
+        property['builtTime'] = rm_accent(FincaRaiz['Ages'])
+        property['stratum'] = FincaRaiz['Stratum']
+        property['numPictures'] = FincaRaiz['NumPhotos']
+        property['adminPrice'] = FincaRaiz['AdministrationPrice']
+
+
+        #Georeference
+        property['latitude'] = FincaRaiz['Latitude']
+        property['longitude'] = FincaRaiz['Longitude']
+        
+        #////////////// OPTIMIZABLE\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        # -- May be optimized by looping over [Interiores, Exteriores and Sectors]
+        # -- to find regex for each type of amenity and store it in a list `amenities`
+        # -- and simply call amenities[1], amenities[2],...
+
+        Extras = rm_accent(FincaRaiz['Extras'])
+        
+        property['amenitiesInteriors'] = re.findall(
+            pattern="(?<=Interiores\$)(.*?)(?=\||\Z)",
+            string=Extras
+        )
+        property['amenitiesExteriors'] = re.findall(
+            pattern="(?<=Exteriores\$)(.*?)(?=\||\Z)",
+            string=Extras)
+        property['ammenitiesSector'] = re.findall(
+            pattern="(?<=Sector\$)(.*?)(?=\||\Z)",
+            string=Extras)
+        #\\\\\\\\\\\\\\\\\\\___________/////////////////////////////
+        yield property
