@@ -5,10 +5,10 @@ from scrapy.exceptions import CloseSpider
 from scrapy.http import Request
 from urllib.parse import urljoin
 from unidecode import unidecode as rm_accent #remove accents
+import re                                    #regex
+import json                                  #read data as json
 
-import re
-import json
-
+# Import property item. Created in items.py
 from ..items import PropertyItem
 
 # Initial URL.
@@ -29,28 +29,39 @@ class FincaraizSpider(scrapy.Spider):
     def __init__(self):
         self.page_number = 1
 
+    #---------------------------------------------------------------------------------#
+    #----------------| EXTRACT INDIVIDUAL URLS FROM GENERAL PAGES |-------------------#
+    #---------------------------------------------------------------------------------#
+
+    # Define method to parse (read html and extract information) general requests
     def parse(self,response):
         print(self.page_number)
         print("----------")
 
-        #Extract propertiy urls from each page
+        # Extract propertiy urls from each page
         # -- Need to change xpath when we include apts
         base_url = "https://www.fincaraiz.com.co/"
         partial_urls = response.xpath("//a[contains(@href, 'casa-en-venta')]/@href").getall()
         property_urls = [urljoin(base_url, partial_url) for partial_url in partial_urls]
 
-        print(len(property_urls))
-
-        ## REQUEST LINKS & PARSE WITH NEW PARSE METHOD ##
+        # Parse individual propery urls extracted before
+        # -- To parse properties we use the parse_prop class, which we define later
         for property_url in property_urls:
             yield Request(property_url, callback=self.parse_prop)
         
+        # After collecting individual properties' urls we check if there is a next page button
         next_page = response.xpath('//a[@title="Ir a la pagina Siguiente"]')
+        # -- If button doesn't exist spider closes, else it goes to the next page
         if not next_page:
             raise CloseSpider("No more pages")
-
+        
+        # -- Else, it goes to the next page and begins cycle again
         self.page_number += 1
         yield Request(URL.format(self.page_number))
+
+    #---------------------------------------------------------------------------------#
+    #----------------------| EXTRACT DATA FROM INDIVIDUAL URLS |----------------------#
+    #---------------------------------------------------------------------------------#
 
     def parse_prop(self, response):
         # Retrieve JSON data stored in HTML as text
@@ -69,18 +80,13 @@ class FincaraizSpider(scrapy.Spider):
 
         #2. Populate item
 
-        # -- Sale information
-        property['propID'] = FincaRaiz['AdvertId'] 
-        # -- Retrieve the type of property (casa/apartment) from the title
-        property['propType'] = re.findall(
-            pattern = "(.*?)[\s]",          # This means: select everything up to a space (\s)
-            string = FincaRaiz['Title']     # From the tile
-            )[0]                            # Take the first word only
-
         # -- Company information
         property['companyId'] = FincaRaiz['ClientId']
         property['companyName'] = rm_accent(FincaRaiz['ClientName'])
-        
+
+        property['propID'] = FincaRaiz['AdvertId'] 
+        # -- Retrieve the type of property (casa/apartment) from the title
+        property['propType'] = re.findall("(.*?)[\s]", FincaRaiz['Title'])[0]
         property['propertyState'] = FincaRaiz['AdvertType']
         property['businessType'] = FincaRaiz['TransactionType'] 
         property['salePrice'] = FincaRaiz['Price'] 
@@ -112,22 +118,18 @@ class FincaraizSpider(scrapy.Spider):
         property['latitude'] = FincaRaiz['Latitude']
         property['longitude'] = FincaRaiz['Longitude']
         
-        #////////////// OPTIMIZABLE\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        # -- May be optimized by looping over [Interiores, Exteriores and Sectors]
-        # -- to find regex for each type of amenity and store it in a list `amenities`
-        # -- and simply call amenities[1], amenities[2],...
-
+        #Extras
         Extras = rm_accent(FincaRaiz['Extras'])
         
         property['amenitiesInteriors'] = re.findall(
             pattern="(?<=Interiores\$)(.*?)(?=\||\Z)",
-            string=Extras
-        )
+            string=Extras)
         property['amenitiesExteriors'] = re.findall(
             pattern="(?<=Exteriores\$)(.*?)(?=\||\Z)",
             string=Extras)
         property['ammenitiesSector'] = re.findall(
             pattern="(?<=Sector\$)(.*?)(?=\||\Z)",
             string=Extras)
-        #\\\\\\\\\\\\\\\\\\\___________/////////////////////////////
+
+        # Output
         yield property
