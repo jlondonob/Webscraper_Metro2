@@ -3,6 +3,12 @@
 import scrapy
 from scrapy.exceptions import CloseSpider
 from scrapy.http import Request
+from urllib.parse import urljoin
+
+import re
+import json
+
+from ..items import PropertyItem
 
 # Initial URL.
 # -- Change later to also include apartment sales and sales in other cities
@@ -21,14 +27,42 @@ class FincaraizSpider(scrapy.Spider):
 
     def __init__(self):
         self.page_number = 1
-    
+
     def parse(self,response):
         print(self.page_number)
         print("----------")
 
+        #Extract propertiy urls from each page
+        # -- Need to change xpath when we include apts
+        base_url = "https://www.fincaraiz.com.co/"
+        partial_urls = response.xpath("//a[contains(@href, 'casa-en-venta')]/@href").getall()
+        property_urls = [urljoin(base_url, partial_url) for partial_url in partial_urls]
+
+        print(len(property_urls))
+
+        ## REQUEST LINKS & PARSE WITH NEW PARSE METHOD ##
+        for property_url in property_urls:
+            yield Request(property_url, callback=self.parse_prop)
+        
         next_page = response.xpath('//a[@title="Ir a la pagina Siguiente"]')
         if not next_page:
             raise CloseSpider("No more pages")
 
         self.page_number += 1
         yield Request(URL.format(self.page_number))
+
+    def parse_prop(self, response):
+        #property = PropertyItem()
+        dataRaw = response.xpath("//script[contains(., 'var sfAdvert = ')]").get()
+        dataClean = re.findall(
+            pattern = "(?<=var sfAdvert = )(.*)(?=;)",
+            string= dataRaw)
+
+        dataJson = []
+        if dataClean:
+            dataJson = json.loads(dataClean[0])
+
+        yield{
+            'Name' : dataJson['Title'],
+            'Price' : dataJson['FormatedPrice']
+        }
