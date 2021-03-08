@@ -52,12 +52,10 @@ class FincaraizSpider(scrapy.Spider):
         # After collecting individual properties' urls we check if there is a next page button
         next_page = response.xpath('//a[@title="Ir a la pagina Siguiente"]')
         # -- If button doesn't exist spider closes, else it goes to the next page
-        if not next_page:
-            raise CloseSpider("No more pages")
-        
-        # -- Else, it goes to the next page and begins cycle again
-        self.page_number += 1
-        yield Request(URL.format(self.page_number))
+        if next_page:
+            # -- Else, it goes to the next page and begins cycle again
+            self.page_number += 1
+            yield Request(URL.format(self.page_number))
 
     #---------------------------------------------------------------------------------#
     #----------------------| EXTRACT DATA FROM INDIVIDUAL URLS |----------------------#
