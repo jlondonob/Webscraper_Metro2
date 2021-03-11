@@ -13,10 +13,6 @@ from ..items import PropertyItem
 # NOTE: All 'DTESTING' chunks should be deleted (or turned into comments) for deployment
 #       'PTESTING' chunks may stay if desired.
 
-#--------------------------------------------------------------------------------------#
-#---------------------| ESTE SCRAPER ES JESUCRISTO |-----------------------------------#
-#--------------------------------------------------------------------------------------#
-
 # Set up short list of urls to test the app
 test_url = ['https://www.metrocuadrado.com/inmueble/venta-casa-medellin-san-lucas-5-habitaciones-5-banos/12133-380']
 
@@ -74,7 +70,6 @@ class GeoScraper(scrapy.Spider):
         property['propID'] = basic['propertyId']
         property['propType'] = basic['propertyType']['nombre']
         property['businessType'] = basic['businessType']
-        property['publicationStatus'] = basic['publicationStatus']
         property['salePrice'] = basic['salePrice']
         property['rentPrice'] = basic['rentPrice']
         property['rentTotalPrice'] = basic['rentTotalPrice']
@@ -98,15 +93,13 @@ class GeoScraper(scrapy.Spider):
             property['sectorName'] = basic['sector']['nombre']
         
         
-        property['neighborhood'] = basic['neighborhood']
-        property['commonNeighborhood'] = basic['commonNeighborhood']
-        property['comment'] = rm_accent(" ".join(basic['comment'].split()))
+        property['neighborhood'] = basic['neighborhood'].lower()
+        property['commonNeighborhood'] = basic['commonNeighborhood'].lower()
+        property['comment'] = rm_accent(" ".join(basic['comment'].split())).lower()
         
         #Company Data
         property['companyId'] = basic['companyId']
-        property['companyName'] = rm_accent(basic['companyName'])
-        property['companyAddress'] = basic['companyAddress']
-        property['contactPhone'] = basic['contactPhone']
+        property['companyName'] = rm_accent(basic['companyName']).lower()
         
         #Other Data
         property['propertyState'] = basic['propertyState']
@@ -125,29 +118,29 @@ class GeoScraper(scrapy.Spider):
         #I think this section can be optimized by assigning direct values
         #to property object inside try:
         try:
-            interiors = ", ".join(featured[0]['items'])
+            interiors = rm_accent(", ".join(featured[0]['items'])).lower()
         except:
             interiors = None
         
         try:
-            exteriors = ", ".join(featured[1]['items'])
+            exteriors = rm_accent(", ".join(featured[1]['items'])).lower()
         except:
             exteriors = None
 
         try:
-            common = ", ".join(featured[2]['items'])
+            common = rm_accent(", ".join(featured[2]['items'])).lower()
         except:
             common = None
         
         try:
-            sector = ", ".join(featured[3]['items'])
+            sector = rm_accent(", ".join(featured[3]['items'])).lower()
         except :
             sector = None
 
-        property['amenitiesInteriors'] = rm_accent(interiors)
-        property['amenitiesExteriors'] = rm_accent(exteriors)
-        property['amenitiesCommonZones'] = rm_accent(common)
-        property['ammenitiesSector'] = rm_accent(sector)
+        property['amenitiesInteriors'] = interiors 
+        property['amenitiesExteriors'] = exteriors
+        property['amenitiesCommonZones'] = common
+        property['ammenitiesSector'] = sector
         #\\\\\\\\\\\\\\\\\\\___________/////////////////////////////
         yield property
 

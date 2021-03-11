@@ -12,7 +12,6 @@ class PropertyItem(scrapy.Item):
     propID = scrapy.Field()
     propType = scrapy.Field()
     businessType = scrapy.Field()
-    publicationStatus = scrapy.Field()
     salePrice = scrapy.Field()
     rentPrice = scrapy.Field()
     rentTotalPrice = scrapy.Field()
@@ -38,8 +37,6 @@ class PropertyItem(scrapy.Item):
     #Company Data
     companyId = scrapy.Field()
     companyName = scrapy.Field()
-    companyAddress = scrapy.Field()
-    contactPhone = scrapy.Field()
     propertyState = scrapy.Field() 
     
     #Other Data
