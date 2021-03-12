@@ -15,3 +15,5 @@ df = pd.DataFrame(data)
 # Groups by all columns and sums timeMarket (note that by default timeMarket in new obs is 1!)
 # ---- We may change 
 df.groupby(df.columns.tolist(), as_index=False).agg({'timeMarket':'sum'})
+
+# But what happens if house goes back to market? If we didn't capture it but it was in the market before?

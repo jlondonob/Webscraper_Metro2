@@ -28,7 +28,7 @@ class GeoScraper(scrapy.Spider):
     name = 'GeoSpider'
 
     # List of URLs 
-    start_urls = test_url
+    start_urls = global_urls
 
     def parse(self, response):
         
@@ -82,13 +82,13 @@ class GeoScraper(scrapy.Spider):
             property['sectorName'] = basic['sector']['nombre']
         
         
-        property['neighborhood'] = basic['neighborhood'].lower()
-        property['commonNeighborhood'] = basic['commonNeighborhood'].lower()
-        property['comment'] = rm_accent(" ".join(basic['comment'].split())).lower()
+        property['neighborhood'] = basic['neighborhood']
+        property['commonNeighborhood'] = basic['commonNeighborhood']
+        property['comment'] = basic['comment']
         
         #Company Data
         property['companyId'] = basic['companyId']
-        property['companyName'] = rm_accent(basic['companyName']).lower()
+        property['companyName'] = basic['companyName']
         
         #Other Data
         property['propertyState'] = basic['propertyState']

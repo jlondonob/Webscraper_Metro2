@@ -16,16 +16,19 @@ Testing = False
 
 
 # Set cities to scrape
+
 cities = ['medellin']
+types = ['casa', 'apartamento']
 
 home_pages = []
 base_url = 'https://www.metrocuadrado.com'
 
 for city in cities:
-    for type in ['casa', 'apartamento']:
+    for type in types:
         home_page = [base_url + '/' + type + '/venta/' + city]
         home_pages.extend(home_page)
 
+print (f"Currently scraping links for {0} in {1}".format(types, cities))
 
 
 driver_path = '/Users/puchu/Desktop/WebScraper_Metro2/chromedriver'
