@@ -52,3 +52,6 @@ class PropertyItem(scrapy.Item):
     amenitiesExteriors = scrapy.Field()
     amenitiesCommonZones = scrapy.Field()
     ammenitiesSector = scrapy.Field()
+
+    #TimeOnMarket
+    timeMarket = scrapy.Field()

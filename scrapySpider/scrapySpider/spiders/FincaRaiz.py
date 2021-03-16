@@ -129,5 +129,8 @@ class FincaraizSpider(scrapy.Spider):
             pattern="(?<=Sector\$)(.*?)(?=\||\Z)",
             string=Extras)
 
+        #Time on Market
+        property['timeMarket'] = 1
+
         # Output
         yield property

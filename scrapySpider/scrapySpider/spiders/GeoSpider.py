@@ -131,6 +131,11 @@ class GeoScraper(scrapy.Spider):
         property['amenitiesCommonZones'] = common
         property['ammenitiesSector'] = sector
         #\\\\\\\\\\\\\\\\\\\___________/////////////////////////////
+
+        #Time on Market
+        property['timeMarket'] = 1
+
+
         yield property
 
 # We can run this spider by going to the scrapySpider mother file and using
