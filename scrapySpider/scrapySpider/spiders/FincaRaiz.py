@@ -89,11 +89,7 @@ class FincaraizSpider(scrapy.Spider):
 
         # -- Company information
         property['companyId'] = FincaRaiz['ClientId']
-        
-        try:
-            property['companyName'] = rm_accent(FincaRaiz['ClientName']).upper()
-        except:
-            property['companyName'] = None
+        property['companyName'] = rm_accent(FincaRaiz['ClientName']).upper()
 
         property['propID'] = FincaRaiz['AdvertId'] 
         # -- Retrieve the type of property (casa/apartment) from the title
@@ -106,25 +102,17 @@ class FincaraizSpider(scrapy.Spider):
         property['rooms'] = FincaRaiz['Rooms'] 
         property['bathrooms'] = FincaRaiz['Baths'] 
         property['garages'] = FincaRaiz['Garages'] 
-        property['floor'] = re.findall("\d+" , FincaRaiz['Floor']) # Only selects digits (of any length)
+        property['floor'] = re.findall("\d+" , FincaRaiz['Floor'])[0] # Selects only digits (of any length)
         property['cityID'] = FincaRaiz['Location2Id'] 
         property['cityName'] = rm_accent(FincaRaiz['Location2']).upper()
         
         property['zoneID'] = FincaRaiz['Location3Id']
-        try:
-            property['zoneName'] = FincaRaiz['Location3'].upper()
-        except:
-            property['zoneName'] = None
+        property['zoneName'] = FincaRaiz['Location3'].upper()
 
-        try:
-            property['neighborhood'] = rm_accent(FincaRaiz['Location4']).upper()
-        except:
-            property['neighborhood'] = None
+        property['neighborhood'] = rm_accent(FincaRaiz['Location4']).upper()
+    
         
-        try:
-            property['propAddress'] = FincaRaiz['Address'].upper()
-        except:
-            property['propAddress'] = None
+        property['propAddress'] = FincaRaiz['Address'].upper()
 
         property['comment'] = rm_accent(FincaRaiz['Description']).lower()
         

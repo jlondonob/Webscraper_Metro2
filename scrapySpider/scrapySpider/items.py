@@ -5,6 +5,13 @@
 
 import scrapy
 
+# Cannot stress importance of this processor enough.
+# --- If Field is error returns none. Without it if a Field
+# --- is error the scraper would ommit the observation.
+# --- A Field might be an error if we try to turn to uppercase a non-present
+# --- characteristic, for example if there is no zoneName.
+from itemloaders.processors import TakeFirst
+
 
 class PropertyItem(scrapy.Item):
     
@@ -22,11 +29,11 @@ class PropertyItem(scrapy.Item):
     cityID = scrapy.Field()
     cityName = scrapy.Field()
     zoneID = scrapy.Field()
-    zoneName = scrapy.Field()
+    zoneName = scrapy.Field(output_processor=TakeFirst())
     sectorName = scrapy.Field()
-    neighborhood = scrapy.Field()
+    neighborhood = scrapy.Field(output_processor=TakeFirst())
     commonNeighborhood = scrapy.Field()
-    propAddress = scrapy.Field()
+    propAddress = scrapy.Field(output_processor=TakeFirst())
     floor = scrapy.Field()
     adminPrice = scrapy.Field()
     
@@ -36,7 +43,7 @@ class PropertyItem(scrapy.Item):
     
     #Company Data
     companyId = scrapy.Field()
-    companyName = scrapy.Field()
+    companyName = scrapy.Field(output_processor=TakeFirst())
     propertyState = scrapy.Field() 
     
     #Other Data
