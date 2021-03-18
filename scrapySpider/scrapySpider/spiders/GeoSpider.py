@@ -70,10 +70,10 @@ class GeoScraper(scrapy.Spider):
         
         if basic['zone']==None:
             property['zoneID'] = None
-            property['ZoneName'] = None
+            property['zoneName'] = None
         else:
             property['zoneID'] = basic['zone']['id']
-            property['ZoneName'] = basic['zone']['nombre']
+            property['zoneName'] = basic['zone']['nombre']
             
         if basic['sector']==None:
             property['sectorName'] = None

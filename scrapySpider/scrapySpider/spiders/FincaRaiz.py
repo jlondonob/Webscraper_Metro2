@@ -106,7 +106,7 @@ class FincaraizSpider(scrapy.Spider):
         property['cityName'] = rm_accent(FincaRaiz['Location2'])
         
         property['zoneID'] = FincaRaiz['Location3Id']
-        property['ZoneName'] = rm_accent(FincaRaiz['Location3'])
+        property['zoneName'] = rm_accent(FincaRaiz['Location3'])
         property['propAddress'] = FincaRaiz['Address']
         property['neighborhood'] = rm_accent(FincaRaiz['Location4'])
         property['commonNeighborhood'] =rm_accent(FincaRaiz['Location4'])

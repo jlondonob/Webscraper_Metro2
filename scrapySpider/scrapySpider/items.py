@@ -22,7 +22,7 @@ class PropertyItem(scrapy.Item):
     cityID = scrapy.Field()
     cityName = scrapy.Field()
     zoneID = scrapy.Field()
-    ZoneName = scrapy.Field()
+    zoneName = scrapy.Field()
     sectorName = scrapy.Field()
     neighborhood = scrapy.Field()
     commonNeighborhood = scrapy.Field()
