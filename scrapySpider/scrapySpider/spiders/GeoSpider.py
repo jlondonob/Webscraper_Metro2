@@ -4,8 +4,7 @@ import scrapy
 import re
 import json
 from unidecode import unidecode as rm_accent #remove accents
-import sys
-import time
+from datetime import date
 
 # Import Porperty Item
 from ..items import PropertyItem
@@ -134,6 +133,8 @@ class GeoScraper(scrapy.Spider):
 
         #Time on Market
         property['timeMarket'] = 1
+        property['firstCapture'] = date.today().strftime('%d-%m-%Y')
+        property['lastCapture'] = date.today().strftime('%d-%m-%Y')
 
 
         yield property

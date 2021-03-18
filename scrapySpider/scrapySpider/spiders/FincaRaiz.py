@@ -8,6 +8,8 @@ from unidecode import unidecode as rm_accent #remove accents
 import re                                    #regex
 import json                                  #read data as json
 
+from datetime import date
+
 # Import property item. Created in items.py
 from ..items import PropertyItem
 
@@ -137,7 +139,12 @@ class FincaraizSpider(scrapy.Spider):
             string=Extras)
 
         #Time on Market
+        # ---- Idea is that if duplicate keep first observation of `firstCapture`
+        # ---- and last observation of `lastCapture`
         property['timeMarket'] = 1
+        property['firstCapture'] = date.today().strftime('%d-%m-%Y')
+        property['lastCapture'] = date.today().strftime('%d-%m-%Y')
+
 
         # Output
         yield property

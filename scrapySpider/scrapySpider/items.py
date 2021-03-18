@@ -55,3 +55,5 @@ class PropertyItem(scrapy.Item):
 
     #TimeOnMarket
     timeMarket = scrapy.Field()
+    firstCapture = scrapy.Field()
+    lastCapture = scrapy.Field()
