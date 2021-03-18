@@ -86,7 +86,7 @@ class GeoScraper(scrapy.Spider):
         
         #Other Data
         property['propertyState'] = basic['propertyState'].upper()
-        property['builtTime'] = basic['builtTime']
+        property['builtTime'] = basic['builtTime'].upper()
         property['stratum'] = basic['stratum']
         property['adminPrice'] = basic['detail']['adminPrice']
 

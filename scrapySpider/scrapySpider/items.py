@@ -46,7 +46,7 @@ class PropertyItem(scrapy.Item):
     propertyState = scrapy.Field() 
     
     #Other Data
-    builtTime = scrapy.Field()
+    builtTime = scrapy.Field(output_processor=TakeFirst())
     stratum = scrapy.Field()
     
     #Georeference

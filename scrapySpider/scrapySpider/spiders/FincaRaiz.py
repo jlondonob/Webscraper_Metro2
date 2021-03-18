@@ -102,7 +102,7 @@ class FincaraizSpider(scrapy.Spider):
         property['rooms'] = FincaRaiz['Rooms'] 
         property['bathrooms'] = FincaRaiz['Baths'] 
         property['garages'] = FincaRaiz['Garages'] 
-        property['floor'] = re.findall("\d+" , FincaRaiz['Floor'])[0] # Selects only digits (of any length)
+        property['floor'] = re.findall("\d+" , FincaRaiz['Floor']) # Selects only digits (of any length)
         property['cityID'] = FincaRaiz['Location2Id'] 
         property['cityName'] = rm_accent(FincaRaiz['Location2']).upper()
         
@@ -119,7 +119,7 @@ class FincaraizSpider(scrapy.Spider):
         
         #Other Data
         
-        property['builtTime'] = rm_accent(FincaRaiz['Ages'])
+        property['builtTime'] = rm_accent(FincaRaiz['Ages']).upper()
         property['stratum'] = FincaRaiz['Stratum']
         property['numPictures'] = FincaRaiz['NumPhotos']
         property['adminPrice'] = FincaRaiz['AdministrationPrice']
