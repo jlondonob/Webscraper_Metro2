@@ -89,13 +89,18 @@ class FincaraizSpider(scrapy.Spider):
 
         # -- Company information
         property['companyId'] = FincaRaiz['ClientId']
-        property['companyName'] = rm_accent(FincaRaiz['ClientName'])
+        
+        try:
+            property['companyName'] = rm_accent(FincaRaiz['ClientName']).upper()
+        except:
+            property['companyName'] = None
 
         property['propID'] = FincaRaiz['AdvertId'] 
         # -- Retrieve the type of property (casa/apartment) from the title
-        property['propType'] = re.findall("(.*?)[\s]", FincaRaiz['Title'])[0]
-        property['propertyState'] = FincaRaiz['AdvertType']
-        property['businessType'] = FincaRaiz['TransactionType'] 
+        property['propType'] = re.findall("(.*?)[\s]", FincaRaiz['Title'])[0].upper() # Takes first word of TITLE before a space character
+
+        property['propertyState'] = FincaRaiz['AdvertType'].upper()
+        property['businessType'] = FincaRaiz['TransactionType'].upper() 
         property['salePrice'] = FincaRaiz['Price'] 
         property['areaBuilt'] = FincaRaiz['Surface'] 
         property['rooms'] = FincaRaiz['Rooms'] 
@@ -103,14 +108,25 @@ class FincaraizSpider(scrapy.Spider):
         property['garages'] = FincaRaiz['Garages'] 
         property['floor'] = re.findall("\d+" , FincaRaiz['Floor']) # Only selects digits (of any length)
         property['cityID'] = FincaRaiz['Location2Id'] 
-        property['cityName'] = rm_accent(FincaRaiz['Location2'])
+        property['cityName'] = rm_accent(FincaRaiz['Location2']).upper()
         
         property['zoneID'] = FincaRaiz['Location3Id']
-        property['zoneName'] = rm_accent(FincaRaiz['Location3'])
-        property['propAddress'] = FincaRaiz['Address']
-        property['neighborhood'] = rm_accent(FincaRaiz['Location4'])
-        property['commonNeighborhood'] =rm_accent(FincaRaiz['Location4'])
-        property['comment'] = rm_accent(FincaRaiz['Description'])
+        try:
+            property['zoneName'] = FincaRaiz['Location3'].upper()
+        except:
+            property['zoneName'] = None
+
+        try:
+            property['neighborhood'] = rm_accent(FincaRaiz['Location4']).upper()
+        except:
+            property['neighborhood'] = None
+        
+        try:
+            property['propAddress'] = FincaRaiz['Address'].upper()
+        except:
+            property['propAddress'] = None
+
+        property['comment'] = rm_accent(FincaRaiz['Description']).lower()
         
         
         #Other Data
