@@ -24,6 +24,13 @@ URL = 'https://www.fincaraiz.com.co/casas/venta/medellin/?ad=30|{0}||||1||9|||55
 # -- If next page button exists it goes to next page else the spider closes.
 class FincaraizSpider(scrapy.Spider):
     name = 'FincaRaiz'
+
+    # Specific Settings (override settings.py) we want this scraper to be slower than the others
+    custom_settings = {
+        'DOWNLOAD_DELAY': 1,
+        'CONCURRENT_REQUESTS': 5,
+    }
+
     start_urls = [URL.format(1)]  
 
     def __init__(self):
