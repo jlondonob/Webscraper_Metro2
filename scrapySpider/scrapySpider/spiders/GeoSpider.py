@@ -123,7 +123,7 @@ class GeoScraper(scrapy.Spider):
         property['amenitiesInteriors'] = interiors 
         property['amenitiesExteriors'] = exteriors
         property['amenitiesCommonZones'] = common
-        property['ammenitiesSector'] = sector
+        property['amenitiesSector'] = sector
         #\\\\\\\\\\\\\\\\\\\___________/////////////////////////////
 
         #Time on Market

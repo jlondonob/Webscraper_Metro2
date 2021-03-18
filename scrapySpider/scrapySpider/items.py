@@ -54,12 +54,30 @@ class PropertyItem(scrapy.Item):
     longitude = scrapy.Field()  
     
     #Amenities
-    amenitiesInteriors = scrapy.Field()
-    amenitiesExteriors = scrapy.Field()
-    amenitiesCommonZones = scrapy.Field()
-    ammenitiesSector = scrapy.Field()
+    amenitiesInteriors = scrapy.Field(output_processor=TakeFirst())
+    amenitiesExteriors = scrapy.Field(output_processor=TakeFirst())
+    amenitiesCommonZones = scrapy.Field(output_processor=TakeFirst())
+    amenitiesSector = scrapy.Field(output_processor=TakeFirst())
 
     #TimeOnMarket
     timeMarket = scrapy.Field()
     firstCapture = scrapy.Field()
     lastCapture = scrapy.Field()
+
+    #AmenitiesInterior
+    hasChimney = scrapy.Field()
+    hasServiceRoom = scrapy.Field()
+    hasStorageSpace = scrapy.Field()
+    hasInterphone = scrapy.Field()
+    hasBalcony = scrapy.Field()
+
+    #AmenitiesExterior
+    extColsedComplex = scrapy.Field()
+    extVigilance = scrapy.Field()
+    extGreenZones = scrapy.Field()
+    extCoveredGarage = scrapy.Field()
+
+    #AmenitiesSector
+    publishedSectorAmenities = scrapy.Field()
+
+    

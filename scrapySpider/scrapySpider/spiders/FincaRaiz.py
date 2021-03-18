@@ -29,7 +29,7 @@ class FincaraizSpider(scrapy.Spider):
 
     # Specific Settings (override settings.py) we want this scraper to be slower than the others
     custom_settings = {
-        'DOWNLOAD_DELAY': 1,
+        'DOWNLOAD_DELAY': 0.8,
         'CONCURRENT_REQUESTS': 5,
     }
 
@@ -114,7 +114,10 @@ class FincaraizSpider(scrapy.Spider):
         
         property['propAddress'] = FincaRaiz['Address'].upper()
 
-        property['comment'] = rm_accent(FincaRaiz['Description']).lower()
+        comment = rm_accent(FincaRaiz['Description']).lower()
+        comment = ' '.join(comment.split()) #removes double spaces from comments
+        
+        property['comment'] = comment
         
         
         #Other Data
@@ -131,16 +134,48 @@ class FincaraizSpider(scrapy.Spider):
         
         #Extras
         Extras = rm_accent(FincaRaiz['Extras'])
+
+        #Interior Amenities
+        try:
+            interior = re.findall(
+                pattern="(?<=Interiores\$)(.*?)(?=\||\Z)",
+                string=Extras)[0].lower()
+        except IndexError:
+            interior = ""
         
-        property['amenitiesInteriors'] = re.findall(
-            pattern="(?<=Interiores\$)(.*?)(?=\||\Z)",
-            string=Extras)
-        property['amenitiesExteriors'] = re.findall(
-            pattern="(?<=Exteriores\$)(.*?)(?=\||\Z)",
-            string=Extras)
-        property['ammenitiesSector'] = re.findall(
-            pattern="(?<=Sector\$)(.*?)(?=\||\Z)",
-            string=Extras)
+        property['amenitiesInteriors'] = interior
+        
+        property['hasBalcony'] = int('balcon' in interior + comment)      #int used to transform boolean to 1 and 0
+        property['hasChimney'] = int('chimenea' in interior + comment)
+        property['hasServiceRoom'] = int(any(x in (interior + comment) for x in ['cuarto de servicio','cuarto util']))
+        property['hasStorageSpace'] = int('bodega' in interior + comment)
+        property['hasInterphone'] = int('citofono' in interior + comment)
+
+        #Exterior Amenities
+        try:
+            exterior = re.findall(
+                pattern="(?<=Exteriores\$)(.*?)(?=\||\Z)",
+                string=Extras)[0].lower()
+        except IndexError:
+            exterior = ""
+
+        property['amenitiesExteriors'] = exterior
+
+        property['extColsedComplex'] = int(any(x in (exterior + comment) for x in['conjunto cerrado', 'unidad cerrada']))
+        property['extVigilance'] = int('vigilancia' in exterior + comment)
+        property['extGreenZones'] = int('zonas verdes' in exterior + comment)
+        property['extCoveredGarage'] = int(any(x in (exterior + comment) for x in ['garaje cubierto', 'garage cubierto', 'parqueadero cubierto'])) #checks if any of these sentences appear
+
+        #Sector Amenities
+        try:
+            sector = re.findall(
+                pattern="(?<=Sector\$)(.*?)(?=\||\Z)",
+                string=Extras)[0].lower()
+        except IndexError:
+            sector = ""
+
+        property['amenitiesSector'] = sector
+        property['publishedSectorAmenities'] = int(len(sector)>0)
 
         #Time on Market
         # ---- Idea is that if duplicate keep first observation of `firstCapture`
