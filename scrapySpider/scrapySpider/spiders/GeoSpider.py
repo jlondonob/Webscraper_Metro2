@@ -56,8 +56,8 @@ class GeoScraper(scrapy.Spider):
         
         #Basic Data
         property['propID'] = basic['propertyId']
-        property['propType'] = basic['propertyType']['nombre']
-        property['businessType'] = basic['businessType']
+        property['propType'] = basic['propertyType']['nombre'].upper()
+        property['businessType'] = basic['businessType'].upper()
         property['salePrice'] = basic['salePrice']
         property['rentPrice'] = basic['rentPrice']
         property['rentTotalPrice'] = basic['rentTotalPrice']
@@ -66,31 +66,26 @@ class GeoScraper(scrapy.Spider):
         property['bathrooms'] = basic['bathrooms']
         property['garages'] = basic['garages']
         property['cityID'] = basic['city']['id']
-        property['cityName'] = rm_accent(basic['city']['nombre'])
+        property['cityName'] = rm_accent(basic['city']['nombre']).upper()
         
         if basic['zone']==None:
             property['zoneID'] = None
             property['zoneName'] = None
         else:
             property['zoneID'] = basic['zone']['id']
-            property['zoneName'] = basic['zone']['nombre']
-            
-        if basic['sector']==None:
-            property['sectorName'] = None
-        else:
-            property['sectorName'] = basic['sector']['nombre']
+            property['zoneName'] = basic['zone']['nombre'].upper()
         
         
-        property['neighborhood'] = basic['neighborhood']
-        property['commonNeighborhood'] = basic['commonNeighborhood']
-        property['comment'] = basic['comment']
+        property['neighborhood'] = basic['neighborhood'].upper()
+        property['commonNeighborhood'] = basic['commonNeighborhood'].upper()
+        property['comment'] = basic['comment'].lower()
         
         #Company Data
         property['companyId'] = basic['companyId']
         property['companyName'] = basic['companyName']
         
         #Other Data
-        property['propertyState'] = basic['propertyState']
+        property['propertyState'] = basic['propertyState'].upper()
         property['builtTime'] = basic['builtTime']
         property['stratum'] = basic['stratum']
         property['adminPrice'] = basic['detail']['adminPrice']
