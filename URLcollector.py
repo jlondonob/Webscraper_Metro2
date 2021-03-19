@@ -28,7 +28,7 @@ for city in cities:
         home_page = [base_url + '/' + type + '/venta/' + city]
         home_pages.extend(home_page)
 
-print (f"Currently scraping links for {0} in {1}".format(types, cities))
+print (f"Currently scraping links for {types} in {cities}".format(types, cities))
 
 
 driver_path = '/Users/puchu/Desktop/WebScraper_Metro2/chromedriver'

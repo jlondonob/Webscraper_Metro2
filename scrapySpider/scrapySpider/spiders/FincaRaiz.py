@@ -112,7 +112,7 @@ class FincaraizSpider(scrapy.Spider):
         property['neighborhood'] = rm_accent(FincaRaiz['Location4']).upper()
     
         
-        property['propAddress'] = FincaRaiz['Address'].upper()
+        property['propAddress'] = rm_accent(FincaRaiz['Address']).upper()
 
         comment = rm_accent(FincaRaiz['Description']).lower()
         comment = ' '.join(comment.split()) #removes double spaces from comments
