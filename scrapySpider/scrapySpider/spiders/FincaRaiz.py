@@ -7,19 +7,15 @@ from urllib.parse import urljoin
 from unidecode import unidecode as rm_accent #remove accents
 import re                                    #regex
 import json                                  #read data as json
-
-from datetime import date
+from datetime import date                    #for firstCapture and lastCapture
 
 # Import property item. Created in items.py
 from ..items import PropertyItem
 
+
 # Initial URL.
-# -- Change later to also include apartment sales and sales in other cities
-# -- Fortunately its very easy to do so as website shows infinite pages
-# -- As expl: https://www.fincaraiz.com.co/apartamento-casa/venta/cundinamarca-antioquia-valle-del-cauca-atlantico/?ad=30|1000||||1||8,9|||67,55,82,57|||||||||||||||||1|||1||griddate%20desc||||-1||||
-# -- 8,9 refers to houses and aptmts. 67, 55, ... referst ot departments
-# -- Try deleting all text between .co/ and /? and search will be the same
-URL = 'https://www.fincaraiz.com.co/casas/venta/medellin/?ad=30|{0}||||1||9|||55|5500006|||||||||||||||||||1||griddate%20asc||||||||'
+# -- 8,9 refers to houses and aptmts. 67,55,82,57 ... referst to departments
+URL = 'https://www.fincaraiz.com.co/casas/venta/?ad=30|{0}||||1||8,9|||67,55,82,57|||||||||||||||||1|||1||griddate%20asc||||-1|||'
 
 # Body
 # -- Starts at `URL` when {0} == 1. Checks if there is a next page button
@@ -50,7 +46,7 @@ class FincaraizSpider(scrapy.Spider):
         # Extract propertiy urls from each page
         # -- Need to change xpath when we include apts
         base_url = "https://www.fincaraiz.com.co/"
-        partial_urls = response.xpath("//a[contains(@href, 'casa-en-venta')]/@href").getall()
+        partial_urls = response.xpath("//a[contains(@href,'casa-en-venta') or contains(@href,'apartamento-en-venta')]/@href").getall()
         property_urls = [urljoin(base_url, partial_url) for partial_url in partial_urls]
 
         # Parse individual propery urls extracted before
