@@ -76,17 +76,20 @@ class GeoScraper(scrapy.Spider):
             property['zoneName'] = basic['zone']['nombre'].upper()
         
         
-        property['neighborhood'] = basic['neighborhood'].upper()
-        property['commonNeighborhood'] = basic['commonNeighborhood'].upper()
-        property['comment'] = basic['comment'].lower()
+        property['neighborhood'] = rm_accent(basic['neighborhood']).upper()
+        property['commonNeighborhood'] = rm_accent(basic['commonNeighborhood']).upper()
+        
+        comment = rm_accent(basic['comment']).lower()
+        property['comment'] = comment
         
         #Company Data
         property['companyId'] = basic['companyId']
-        property['companyName'] = basic['companyName']
+
+        property['companyName'] = rm_accent(basic['companyName']).upper()
         
         #Other Data
         property['propertyState'] = basic['propertyState'].upper()
-        property['builtTime'] = basic['builtTime'].upper()
+        property['builtTime'] = rm_accent(basic['builtTime']).upper()
         property['stratum'] = basic['stratum']
         property['adminPrice'] = basic['detail']['adminPrice']
 
@@ -101,27 +104,43 @@ class GeoScraper(scrapy.Spider):
         #I think this section can be optimized by assigning direct values
         #to property object inside try:
         try:
-            interiors = rm_accent(", ".join(featured[0]['items'])).lower()
+            interior = rm_accent(", ".join(featured[0]['items'])).lower()
         except:
-            interiors = None
+            interior = ""
+             
+        property['hasChimney'] = int('chimenea' in interior + comment) #int used to transform boolean to 1 and 0
+        property['hasServiceRoom'] = int(any(x in (interior + comment) for x in ['cuarto de servicio','cuarto util']))
+        property['hasStorageSpace'] = None
+        property['hasInterphone'] = int('citofonos' in interior + comment)
+        property['extCoveredGarage'] = int(any(x in (interior + comment) for x in ['garaje cubierto', 'garage cubierto', 'parqueadero cubierto'])) #checks if any of these sentences appear
         
         try:
-            exteriors = rm_accent(", ".join(featured[1]['items'])).lower()
+            exterior = rm_accent(", ".join(featured[1]['items'])).lower()
         except:
-            exteriors = None
+            exterior = ""
 
+        property['hasBalcony'] = int('balcon' in exterior + comment) 
+        property['extColsedComplex'] = int(any(x in (exterior + comment) for x in['conjunto cerrado', 'unidad cerrada']))
+        property['extVigilance'] = int('vigilancia' in exterior + comment)
+        
+        
         try:
             common = rm_accent(", ".join(featured[2]['items'])).lower()
         except:
-            common = None
+            common = ""
         
+        property['extGreenZones'] = int('zonas verdes' in common + comment)
+
         try:
             sector = rm_accent(", ".join(featured[3]['items'])).lower()
         except :
-            sector = None
+            sector = ""
 
-        property['amenitiesInteriors'] = interiors 
-        property['amenitiesExteriors'] = exteriors
+        property['publishedSectorAmenities'] = int(len(sector)>0)
+
+        
+        property['amenitiesInteriors'] = interior
+        property['amenitiesExteriors'] = exterior
         property['amenitiesCommonZones'] = common
         property['amenitiesSector'] = sector
         #\\\\\\\\\\\\\\\\\\\___________/////////////////////////////
