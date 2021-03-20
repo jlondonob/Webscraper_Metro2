@@ -1,5 +1,8 @@
+#--------------------------------------------------------------------------------------#
+#-----------------------| SCRAPER SETUP |----------------------------------------------#
+#--------------------------------------------------------------------------------------#
 
-# Import libraries
+#LIBRARIES
 import scrapy
 from scrapy.exceptions import CloseSpider
 from scrapy.http import Request
@@ -9,88 +12,88 @@ import re                                    #regex
 import json                                  #read data as json
 from datetime import date                    #for firstCapture and lastCapture
 
-# Import property item. Created in items.py
-from ..items import PropertyItem
+from ..items import PropertyItem            # Import `property` item from items.py
 
-
-# Initial URL.
-# -- 8,9 refers to houses and aptmts. 67,55,82,57 ... referst to departments
+# INITIAL URL
+# -- 8,9 refers to houses and aptmts. 67,55,82,57 refers to departments
 URL = 'https://www.fincaraiz.com.co/casas/venta/?ad=30|{0}||||1||8,9|||67,55,82,57|||||||||||||||||1|||1||griddate%20asc||||-1|||'
 
-# Body
-# -- Starts at `URL` when {0} == 1. Checks if there is a next page button
-# -- If next page button exists it goes to next page else the spider closes.
+#--------------------------------------------------------------------------------------#
+#-----------------------| SCRAPER BODY |-----------------------------------------------#
+#--------------------------------------------------------------------------------------#
 class FincaraizSpider(scrapy.Spider):
     name = 'FincaRaiz'
 
-    # Specific Settings (override settings.py) we want this scraper to be slower than the others
+    #make scraper slower than the rest (override settings.py).
     custom_settings = {
-        'DOWNLOAD_DELAY': 0.8,
+        'DOWNLOAD_DELAY': 0.6,
         'CONCURRENT_REQUESTS': 5,
     }
 
+    #start scraping at page 1
     start_urls = [URL.format(1)]  
 
+    #set internal page number to 1
     def __init__(self):
         self.page_number = 1
 
-    #---------------------------------------------------------------------------------#
-    #----------------| EXTRACT INDIVIDUAL URLS FROM GENERAL PAGES |-------------------#
-    #---------------------------------------------------------------------------------#
+    #-----------------------| EXTRACT PROPERTY URLS FROM SCROLLING PAGES |-------------------#
 
-    # Define method to parse (read html and extract information) general requests
+    # DEFINE PARSE METHOD (how to handle scrolling page requests)
     def parse(self,response):
+
+        #1. print page number
         print(self.page_number)
         print("----------")
 
-        # Extract propertiy urls from each page
-        # -- Need to change xpath when we include apts
+        #2. extract all urls of properties shown in scrolling page.
         base_url = "https://www.fincaraiz.com.co/"
         partial_urls = response.xpath("//a[contains(@href,'casa-en-venta') or contains(@href,'apartamento-en-venta')]/@href").getall()
         property_urls = [urljoin(base_url, partial_url) for partial_url in partial_urls]
 
-        # Parse individual propery urls extracted before
-        # -- To parse properties we use the parse_prop class, which we define later
+        #3. parse propery pages extracted in step 2 using the parse_prop method
         for property_url in property_urls:
-            yield Request(property_url, callback=self.parse_prop)
+            yield Request(property_url, callback=self.parse_prop) #note that callback is set to `parse_prop`
         
-        # After collecting individual properties' urls we check if there is a next page button
+        #4. check if next_page button exists. if it does go to the next page
         next_page = response.xpath('//a[@title="Ir a la pagina Siguiente"]')
-        # -- If button doesn't exist spider closes, else it goes to the next page
         if next_page:
-            # -- Else, it goes to the next page and begins cycle again
             self.page_number += 1
-            yield Request(URL.format(self.page_number))
+            yield Request(URL.format(self.page_number))           #note that callback is not defined. thus scrapy uses the `parse` method
 
-    #---------------------------------------------------------------------------------#
-    #----------------------| EXTRACT DATA FROM INDIVIDUAL URLS |----------------------#
-    #---------------------------------------------------------------------------------#
 
+    #-----------------------| EXTRACT DATA FROM PROPERTY PAGES |----------------------------#
+
+    # DEFINE PARSE_PROP METHOD (how to handle property page requests)
     def parse_prop(self, response):
-        # Retrieve JSON data stored in HTML as text
+
+        #1. capture the script that contains the property's data
         dataRaw = response.xpath("//script[contains(., 'var sfAdvert = ')]").get()
+        
+        #2. select only the json part (located between texts "?<=var sfAdvert = " and ";")
         dataClean = re.findall(
             pattern = "(?<=var sfAdvert = )(.*)(?=;)",
             string= dataRaw)
-        # Turn text into actual readable JSON data object
+
+        #3. turn text into actual readable JSON data object
         FincaRaiz = []
         if dataClean:
             FincaRaiz = json.loads(dataClean[0])
 
-        # -------------------- START FILLING PROPERTY ITEM --------------------- #
-        #1. Create Property Item
+        #4. --------------------* START FILLING PROPERTY ITEM *---------------------------- #
+        
+        #4.1. create Property Item
         property = PropertyItem()
 
-        #2. Populate item
+        #4.2. Populate item using clean data from step 3.
 
-        # -- Company information
+        #Company information
         property['companyId'] = FincaRaiz['ClientId']
         property['companyName'] = rm_accent(FincaRaiz['ClientName']).upper()
 
         property['propID'] = FincaRaiz['AdvertId'] 
-        # -- Retrieve the type of property (casa/apartment) from the title
-        property['propType'] = re.findall("(.*?)[\s]", FincaRaiz['Title'])[0].upper() # Takes first word of TITLE before a space character
-
+        #Property info------------------------------------------
+        property['propType'] = re.findall("(.*?)[\s]", FincaRaiz['Title'])[0].upper() #takes first word of TITLE before a space character
         property['propertyState'] = FincaRaiz['AdvertType'].upper()
         property['businessType'] = FincaRaiz['TransactionType'].upper() 
         property['salePrice'] = FincaRaiz['Price'] 
@@ -98,56 +101,52 @@ class FincaraizSpider(scrapy.Spider):
         property['rooms'] = FincaRaiz['Rooms'] 
         property['bathrooms'] = FincaRaiz['Baths'] 
         property['garages'] = FincaRaiz['Garages'] 
-        property['floor'] = re.findall("\d+" , FincaRaiz['Floor']) # Selects only digits (of any length)
+        property['floor'] = re.findall("\d+" , FincaRaiz['Floor'])                     #selects only digits (of any length)
+        
+        #Location-----------------------------------------------
         property['cityID'] = FincaRaiz['Location2Id'] 
         property['cityName'] = rm_accent(FincaRaiz['Location2']).upper()
-        
         property['zoneID'] = FincaRaiz['Location3Id']
-        property['zoneName'] = FincaRaiz['Location3'].upper()
-
+        property['zoneName'] = rm_accent(FincaRaiz['Location3']).upper()
         property['neighborhood'] = rm_accent(FincaRaiz['Location4']).upper()
-    
-        
         property['propAddress'] = rm_accent(FincaRaiz['Address']).upper()
 
+        #Comment-----------------------------------------------
         comment = rm_accent(FincaRaiz['Description']).lower()
-        comment = ' '.join(comment.split()) #removes double spaces from comments
-        
+        comment = ' '.join(comment.split())                                              #remove double spaces from comments
         property['comment'] = comment
         
-        
-        #Other Data
-        
+        #Other Data-----------------------------------------------
         property['builtTime'] = rm_accent(FincaRaiz['Ages']).upper()
         property['stratum'] = FincaRaiz['Stratum']
         property['numPictures'] = FincaRaiz['NumPhotos']
         property['adminPrice'] = FincaRaiz['AdministrationPrice']
 
-
-        #Georeference
+        #Georeference-----------------------------------------------
         property['latitude'] = FincaRaiz['Latitude']
         property['longitude'] = FincaRaiz['Longitude']
         
         #Extras
         Extras = rm_accent(FincaRaiz['Extras'])
 
-        #Interior Amenities
+        #Interior Amenities----------------------------------------------
         try:
             interior = re.findall(
-                pattern="(?<=Interiores\$)(.*?)(?=\||\Z)",
+                pattern="(?<=Interiores\$)(.*?)(?=\||\Z)",                               #this means select text from "Interiores\" to "|"" or to end of string if "|" does not exist
                 string=Extras)[0].lower()
         except IndexError:
             interior = ""
         
         property['amenitiesInteriors'] = interior
-        
-        property['hasBalcony'] = int('balcon' in interior + comment)      #int used to transform boolean to 1 and 0
+            #check if words are in either interior or comment
+        property['hasBalcony'] = int('balcon' in interior + comment)                     #int used to transform boolean to 1 and 0
         property['hasChimney'] = int('chimenea' in interior + comment)
         property['hasServiceRoom'] = int(any(x in (interior + comment) for x in ['cuarto de servicio','cuarto util']))
         property['hasStorageSpace'] = int('bodega' in interior + comment)
         property['hasInterphone'] = int('citofono' in interior + comment)
+        property['hasAirConditioner'] = int('aire acondicionado' in interior + comment)
 
-        #Exterior Amenities
+        #Exterior Amenities-----------------------------------------------
         try:
             exterior = re.findall(
                 pattern="(?<=Exteriores\$)(.*?)(?=\||\Z)",
@@ -156,13 +155,13 @@ class FincaraizSpider(scrapy.Spider):
             exterior = ""
 
         property['amenitiesExteriors'] = exterior
-
+            #check if words are in either exterior or comment
         property['extColsedComplex'] = int(any(x in (exterior + comment) for x in['conjunto cerrado', 'unidad cerrada']))
         property['extVigilance'] = int('vigilancia' in exterior + comment)
         property['extGreenZones'] = int('zonas verdes' in exterior + comment)
         property['extCoveredGarage'] = int(any(x in (exterior + comment) for x in ['garaje cubierto', 'garage cubierto', 'parqueadero cubierto'])) #checks if any of these sentences appear
 
-        #Sector Amenities
+        #Sector Amenities-----------------------------------------------
         try:
             sector = re.findall(
                 pattern="(?<=Sector\$)(.*?)(?=\||\Z)",
@@ -173,13 +172,13 @@ class FincaraizSpider(scrapy.Spider):
         property['amenitiesSector'] = sector
         property['publishedSectorAmenities'] = int(len(sector)>0)
 
-        #Time on Market
-        # ---- Idea is that if duplicate keep first observation of `firstCapture`
-        # ---- and last observation of `lastCapture`
+        #Time on Market-----------------------------------------------
+            #idea is that if duplicate keep first observation of `firstCapture`
+            #and last observation of `lastCapture`
         property['timeMarket'] = 1
         property['firstCapture'] = date.today().strftime('%d-%m-%Y')
         property['lastCapture'] = date.today().strftime('%d-%m-%Y')
 
 
-        # Output
+        #PROPERTY PAGE'S OUTPUT
         yield property

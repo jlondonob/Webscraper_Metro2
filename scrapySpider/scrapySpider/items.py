@@ -70,6 +70,7 @@ class PropertyItem(scrapy.Item):
     hasStorageSpace = scrapy.Field()
     hasInterphone = scrapy.Field()
     hasBalcony = scrapy.Field()
+    hasAirConditioner = scrapy.Field()
 
     #AmenitiesExterior
     extColsedComplex = scrapy.Field()
