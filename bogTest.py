@@ -22,9 +22,6 @@ webdriver = webdriver.Chrome(
 
 
 with webdriver as driver:
-    
-    #wait object for later use
-    wait = WebDriverWait(driver, 10)
 
     driver.get(url)  
 
@@ -35,11 +32,11 @@ with webdriver as driver:
     #buttons
     min_area = driver.find_element_by_xpath("//div[label='Área (m²):']//div[@class='m2-select-container']")
     max_area = driver.find_element_by_xpath("(//div[label='Área (m²):']//div[@class='m2-select-container'])[2]")
+    
     list_areas = ["60", "100", "200", "300", "400", "500", "1200"]
     areas_button = [f"//div[contains(text(), '{area} m')]" for area in list_areas]
     
-    
-
+    #loop through possible areas
     for i in range(0,6):
         min_area.click()
         driver.find_element_by_xpath(areas_button[i]).click()
@@ -47,8 +44,7 @@ with webdriver as driver:
         max_area.click()
         driver.find_element_by_xpath(areas_button[i+1]).click()
     
-
+    #delete after checking process
     time.sleep(10)
-
 
     driver.close()
