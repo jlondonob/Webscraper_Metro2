@@ -34,12 +34,18 @@ with webdriver as driver:
 
     #buttons
     min_area = driver.find_element_by_xpath("//div[label='Área (m²):']//div[@class='m2-select-container']")
-    min_area.click()
-    driver.find_element_by_xpath("//*[contains(text(), '60 m')]").click()
-
     max_area = driver.find_element_by_xpath("(//div[label='Área (m²):']//div[@class='m2-select-container'])[2]")
-    max_area.click()
-    driver.find_element_by_xpath("//*[contains(text(), '100 m')]").click()
+    list_areas = ["60", "100", "200", "300", "400", "500", "1200"]
+    areas_button = [f"//div[contains(text(), '{area} m')]" for area in list_areas]
+    
+    
+
+    for i in range(0,6):
+        min_area.click()
+        driver.find_element_by_xpath(areas_button[i]).click()
+
+        max_area.click()
+        driver.find_element_by_xpath(areas_button[i+1]).click()
     
 
     time.sleep(10)
