@@ -21,17 +21,18 @@ Testing = False
 
 # Set cities to scrape
 cities = ['medellin']
+
 types = ['casa', 'apartamento']
 
-home_pages = []
 base_url = 'https://www.metrocuadrado.com'
 
+home_pages = []
 for city in cities:
     for type in types:
         home_page = [base_url + '/' + type + '/venta/' + city]
         home_pages.extend(home_page)
 
-print (f"Currently scraping links for {types} in {cities}".format(types, cities))
+print (f"Currently scraping links for {types} in {cities}")
 
 
 driver_path = '/Users/puchu/Desktop/WebScraper_Metro2/chromedriver'
@@ -48,8 +49,7 @@ webdriver = webdriver.Chrome(
 
 with webdriver as driver:
     
-    # Creates a web object that will be used later. It stores the following information
-    # " This is a wait where the conection will time out if takes more than 10s to load"
+    #wait object for later use
     wait = WebDriverWait(driver, 10)
 
     links = []

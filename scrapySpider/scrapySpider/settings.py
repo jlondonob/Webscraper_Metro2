@@ -13,6 +13,7 @@ SPIDER_MODULES = ['scrapySpider.spiders']
 NEWSPIDER_MODULE = 'scrapySpider.spiders'
 
 FEED_EXPORT_ENCODING = 'utf-8'
+
 # Export order
 FEED_EXPORT_FIELDS = ['propID',
                       'propType',

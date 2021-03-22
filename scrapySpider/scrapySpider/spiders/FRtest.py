@@ -16,7 +16,7 @@ from ..items import PropertyItem            # Import `property` item from items.
 
 # INITIAL URL
 # -- 8,9 refers to houses and aptmts. 67,55,82,57 refers to departments
-URL = 'https://www.fincaraiz.com.co/casas/venta/medellin/'
+URL = 'https://www.fincaraiz.com.co/casas/venta/medellin/?ad=30|{0}||||1||9|||55|5500006|||||||||||||||||||1||griddate%20desc||||||||'
 
 #--------------------------------------------------------------------------------------#
 #-----------------------| SCRAPER BODY |-----------------------------------------------#
