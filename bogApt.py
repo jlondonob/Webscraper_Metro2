@@ -11,7 +11,9 @@ from selenium.webdriver.support.ui import Select
 import time 
 import json
 
-url = "https://www.metrocuadrado.com/casa/venta/bogota/"
+import platform                                                     #to check OS (important for pressing command or control keys)
+
+url = "https://www.metrocuadrado.com/apartamento/venta/bogota/"
 
 driver_path = '/Users/puchu/Desktop/WebScraper_Metro2/chromedriver'
 chrome_options = Options()
@@ -33,18 +35,32 @@ with webdriver as driver:
     accept_cookies_button.click()  
 
     #buttons
-    min_area = driver.find_element_by_xpath("//div[label='Área (m²):']//div[@class='m2-select-container']")
-    max_area = driver.find_element_by_xpath("(//div[label='Área (m²):']//div[@class='m2-select-container'])[2]")
-    
-    list_areas = ["60", "100", "200", "300", "400", "500", "1200"]
-    areas_button = [f"//div[contains(text(), '{area} m')]" for area in list_areas]
+    min_price = driver.find_element_by_xpath("//input[@name='startPrice']")
+    max_price = driver.find_element_by_xpath("//input[@name='endPrice']")
+    filter_price_button = driver.find_element_by_id("filter-price")
+
+    list_prices = ["100", "200", "300", "400", "500", "600", "700","800","900","1000","1400","1700","10000"]
+    list_prices = [f"{price}000000" for price in list_prices]
     
     #loop through possible areas
-    for i in range(0,6):
-        min_area.click()
-        driver.find_element_by_xpath(areas_button[i]).click()
-        max_area.click()
-        driver.find_element_by_xpath(areas_button[i+1]).click()
+    for i in range(len(list_prices)):
+        min_price.send_keys("321312")
+
+        #Deletes prior input
+        if platform.system()=="Darwin":         #Mac OS
+            select_all = Keys.COMMAND + "a"
+        elif platform.system()=="Windows":      #Windows OS
+            select_all = Keys.CONTROL + "a"
+        
+        min_price.send_keys(select_all)
+        min_price.send_keys(Keys.DELETE)
+        max_price.send_keys(select_all)
+        max_price.send_keys(Keys.DELETE)
+            
+        
+        min_price.send_keys(list_prices[i])
+        max_price.send_keys(list_prices[i+1])
+        filter_price_button.click()
 
         #---
         #CODE TO GO TRHOUGH PAGES AND SCRAPE
