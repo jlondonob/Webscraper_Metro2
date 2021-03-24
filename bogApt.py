@@ -44,8 +44,7 @@ with webdriver as driver:
     
     #loop through possible areas
     for i in range(len(list_prices)):
-        min_price.send_keys("321312")
-
+        
         #Deletes prior input
         if platform.system()=="Darwin":         #Mac OS
             select_all = Keys.COMMAND + "a"
@@ -56,7 +55,7 @@ with webdriver as driver:
         min_price.send_keys(Keys.DELETE)
         max_price.send_keys(select_all)
         max_price.send_keys(Keys.DELETE)
-            
+        ###   
         
         min_price.send_keys(list_prices[i])
         max_price.send_keys(list_prices[i+1])
