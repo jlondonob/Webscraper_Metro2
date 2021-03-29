@@ -22,7 +22,7 @@ webdriver = webdriver.Chrome(
     executable_path=driver_path,
     #options=chrome_options
 )
-links = []
+all_urls = []
 
 base_url = "https://www.metrocuadrado.com"
 #possibilities: "apartamento" and "casa"
@@ -36,7 +36,6 @@ home_page = base_url + '/' + "-".join(housing_type) + '/venta/'
 price_dividers = {
             'bogota': [f"{price}000000" for price in ["0", "200", "300", "400", "500", "600", "700","800","900","1000","1400","1700","2500","10000"]],
             'medellin': [f"{price}000000" for price in ["0", "500", "10000"]],
-            'other': [f"{price}000000" for price in ["0", "10000"]]
         }
 #--------------------------------------------------------------------------------------#
 #-----------------------| SCRAPER BODY |-----------------------------------------------#
@@ -61,12 +60,14 @@ with webdriver as driver:
         max_price = driver.find_element_by_xpath("//input[@name='endPrice']")
         filter_price_button = driver.find_element_by_id("filter-price")
         
-        #loop through possible prices
+       
 
-        if city not in ["medellin", "bogota"]:
-            price_dividers[f"{city}"] = price_dividers['other']
-
-        for i in range(len(price_dividers[f"{city}"])):
+        if city not in price_dividers:
+            price_dividers[f"{city}"] = [f"{price}000000" for price in ["0", "10000"]]
+        
+        #loop through possible prices. Minus 1 because we don't want last divider as minimum price.
+        for i in range(len(price_dividers[f"{city}"])-1):
+            
             #Deletes prior input
             if platform.system()=="Darwin":         #Mac OS
                 select_all = Keys.COMMAND + "a"
@@ -88,8 +89,8 @@ with webdriver as driver:
             next_page_button = driver.find_element_by_css_selector('.item-icon-next a')
             arrow_disabled = driver.find_elements_by_css_selector('.item-icon-next.page-item.disabled')
 
-            links1 = driver.find_elements_by_css_selector('.card-result-img .sc-bdVaJa')
-            links1 = [link.get_attribute('href') for link in links1]
+            links_main = driver.find_elements_by_css_selector('.card-result-img .sc-bdVaJa')
+            links_links_mainmain_divided = [link.get_attribute('href') for link in links_main]
 
             while True:
                 if len(arrow_disabled) > 0:
@@ -106,19 +107,17 @@ with webdriver as driver:
                     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.card-result-img .sc-bdVaJa')))
 
                     # Gets links from specific page
-                    links2 = driver.find_elements_by_css_selector('.card-result-img .sc-bdVaJa')
-                    links2 = [link.get_attribute('href') for link in links2]
+                    links_next_page = driver.find_elements_by_css_selector('.card-result-img .sc-bdVaJa')
+                    links_next_page = [link.get_attribute('href') for link in links_next_page]
 
-                    print('Number of urls scraped at page' + current_page.text + ':' + str(len(links2)))
+                    print('Number of urls scraped at page' + current_page.text + ':' + str(len(links_next_page)))
 
                     # Appends new links to links object
-                    links1.extend(links2)
-            links.extend(links1)
-        
+                    links_main.extend(links_next_page)
+            all_urls.extend(links_main)
         index +=1
-
-
+        
     driver.close()
 
 with open('collectedURLSbog.txt','w') as fp:
-    json.dump(links,fp)
+    json.dump(all_urls,fp)
