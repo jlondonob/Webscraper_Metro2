@@ -15,6 +15,7 @@ import platform                                                     #to check OS
 
 
 
+
 driver_path = '/Users/puchu/Desktop/WebScraper_Metro2/chromedriver'
 chrome_options = Options()
 chrome_options.add_argument('--headless')
@@ -28,10 +29,12 @@ base_url = "https://www.metrocuadrado.com"
 #possibilities: "apartamento" and "casa"
 housing_type = ["apartamento", "casa"] 
 #possibilities: "medellin","bogota", "barranquilla", "cali"
-cities = ["cali", "medellin","bogota", "barranquilla"]
+#cities = ["cali", "medellin","bogota", "barranquilla"]
+cities = ["medellin"]
 
 
 home_page = base_url + '/' + "-".join(housing_type) + '/venta/'
+#casa primero luego apartamento
 
 price_dividers = {
             'bogota': [f"{price}000000" for price in ["0", "200", "300", "400", "500", "600", "700","800","900","1000","1400","1700","2500","10000"]],
@@ -42,7 +45,7 @@ price_dividers = {
 #--------------------------------------------------------------------------------------#
 with webdriver as driver:
 
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 100)
 
     index = 0
     
