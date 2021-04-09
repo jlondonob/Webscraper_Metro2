@@ -15,7 +15,8 @@ NEWSPIDER_MODULE = 'scrapySpider.spiders'
 FEED_EXPORT_ENCODING = 'utf-8'
 
 # Export order
-FEED_EXPORT_FIELDS = ['propID',
+FEED_EXPORT_FIELDS = ['source',
+                      'propID',
                       'propType',
                       'businessType',
                       'salePrice',

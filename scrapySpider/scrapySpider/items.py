@@ -16,6 +16,8 @@ from itemloaders.processors import TakeFirst
 class PropertyItem(scrapy.Item):
     
     #Basic Data
+    source = scrapy.Field()
+
     propID = scrapy.Field()
     propType = scrapy.Field()
     businessType = scrapy.Field()
