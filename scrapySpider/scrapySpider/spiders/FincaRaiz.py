@@ -87,6 +87,8 @@ class FincaraizSpider(scrapy.Spider):
 
         #4.2. Populate item using clean data from step 3.
 
+        property['source'] = "FINCA RAIZ"
+
         #Company information
         property['companyId'] = FincaRaiz['ClientId']
         property['companyName'] = rm_accent(FincaRaiz['ClientName']).upper()

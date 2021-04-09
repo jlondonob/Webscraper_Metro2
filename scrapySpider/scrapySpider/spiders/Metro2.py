@@ -24,7 +24,7 @@ with open(path2urls,'r') as fp:
 class GeoScraper(scrapy.Spider):
 
     # Naming the spider
-    name = 'GeoSpider'
+    name = 'Metro2'
 
     # List of URLs 
     start_urls = global_urls
@@ -55,6 +55,8 @@ class GeoScraper(scrapy.Spider):
         property = PropertyItem()
         
         #Basic Data
+        property['source'] = "METRO CUADRADO"
+
         property['propID'] = basic['propertyId']
         property['propType'] = basic['propertyType']['nombre'].upper()
         property['businessType'] = basic['businessType'].upper()
