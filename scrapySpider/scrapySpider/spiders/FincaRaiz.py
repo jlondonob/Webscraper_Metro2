@@ -95,8 +95,11 @@ class FincaraizSpider(scrapy.Spider):
 
         property['propID'] = FincaRaiz['AdvertId'] 
         #Property info------------------------------------------
-        property['propType'] = re.findall("(.*?)[\s]", FincaRaiz['Title'])[0].upper() #takes first word of TITLE before a space character
-        property['propertyState'] = FincaRaiz['AdvertType'].upper()
+        property['propType'] = re.findall("(.*?)[\s]", FincaRaiz['Title'])[0].upper() #extract first word of TITLE before a space character (to get type of property)
+        
+        propertyState = FincaRaiz['AdvertType'].upper()                               #translate propertyState to spanish (make it comparable with Metro Cuadrado)
+        property['propertyState'] = "USADO" if propertyState=="USED" else "NUEVO"     #
+        
         property['businessType'] = FincaRaiz['TransactionType'].upper() 
         property['salePrice'] = FincaRaiz['Price'] 
         property['areaBuilt'] = FincaRaiz['Surface'] 

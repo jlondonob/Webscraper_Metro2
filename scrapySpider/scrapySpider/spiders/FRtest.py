@@ -87,6 +87,8 @@ class FincaraizSpider(scrapy.Spider):
 
         #4.2. Populate item using clean data from step 3.
 
+        property['source'] = "FINCA RAIZ"
+
         #Company information
         property['companyId'] = FincaRaiz['ClientId']
         property['companyName'] = rm_accent(FincaRaiz['ClientName']).upper()
@@ -94,7 +96,10 @@ class FincaraizSpider(scrapy.Spider):
         property['propID'] = FincaRaiz['AdvertId'] 
         #Property info------------------------------------------
         property['propType'] = re.findall("(.*?)[\s]", FincaRaiz['Title'])[0].upper() #takes first word of TITLE before a space character
-        property['propertyState'] = FincaRaiz['AdvertType'].upper()
+        
+        propertyState = FincaRaiz['AdvertType'].upper()
+        property['propertyState'] = "USADO" if propertyState=="USED" else "NUEVO"
+        
         property['businessType'] = FincaRaiz['TransactionType'].upper() 
         property['salePrice'] = FincaRaiz['Price'] 
         property['areaBuilt'] = FincaRaiz['Surface'] 
