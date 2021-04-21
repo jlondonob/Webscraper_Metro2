@@ -8,99 +8,83 @@ from geopandas.geodataframe import GeoDataFrame
 import pandas as pd
 import numpy as np
 
-pd.set_option('display.max_columns', None)
-
-#Importing data files
-file_pre = "/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_22_03_2021.csv"
-file_post = "/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_15_04_21.csv"
-
-housing_pre = pd.read_csv(file_pre)
-housing_post = pd.read_csv(file_post)
-
-
-#Creating variable price/m2
-
-
-housing_pre['price_m2'] = housing_pre.salePrice/housing_pre.areaBuilt
-housing_pre['price_m2'] = np.where(housing_pre.areaBuilt <10, np.nan, housing_pre['price_m2'])
-housing_pre['price_m2'] = np.where(housing_pre.salePrice >15000000000, np.nan, housing_pre['price_m2'])
-#housing_pre['price_m2'] = pd.to_numeric(housing_pre['price_m2'])
-
-housing_post['price_m2'] = housing_post.salePrice/housing_post.areaBuilt
-housing_post['price_m2'] = np.where(housing_post.areaBuilt <10, np.nan, housing_post['price_m2'])
-housing_post['price_m2'] = np.where(housing_post.salePrice >15000000000, np.nan, housing_post['price_m2'])
-#housing_post['price_m2'] = pd.to_numeric(housing_post['price_m2'])
-
-#Dropping duplicates
-duplicate_criteria = ["propType","rooms","bathrooms","stratum","cityName","salePrice","areaBuilt","companyName"]
-
-housing_pre = housing_pre.drop_duplicates(duplicate_criteria)
-housing_post = housing_post.drop_duplicates(duplicate_criteria)
-
-#----------------------------------------------------------------------------------------------------------------#
-#------------------------------------| GEODATAFRAME | -----------------------------------------------------------#
-#----------------------------------------------------------------------------------------------------------------#
-
-#Installing geopandas, matplotlib, and rtree
+#Importing geopandas, matplotlib, and rtree (GeoData packages)
 import geopandas as gpd
 import matplotlib.pyplot as plt
 from shapely.geometry import Point
+pd.set_option('display.max_columns', None)
 
-#Reading shapefile that contains `barrios` and `veredas`
-barrios = gpd.read_file("/Users/puchu/Desktop/WebScraper_Metro2/applied_case/Barrio_Vereda/Barrio_Vereda.shp")
+files =["/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_22_03_2021.csv", "/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_15_04_21.csv"]
+shape_names = ["pre_data.shp", "post_data.shp"]
 
-#Creating plotly Points for houses (objective is to later merge with shape)
-geometry_pre = [Point(xy) for xy in zip(housing_pre.longitude,housing_pre.latitude)]
-housing_pre = gpd.GeoDataFrame(housing_pre, crs="EPSG:4326", geometry=geometry_pre)
+#Creating index for shapefile names
+index=0
+global_data =[]
+for file in files:
+    
 
-geometry_post = [Point(xy) for xy in zip(housing_post.longitude,housing_post.latitude)]
-housing_post = gpd.GeoDataFrame(housing_post, crs="EPSG:4326", geometry=geometry_post)
+    #Importing data files
+    house_data = pd.read_csv(file)
 
-#Merging barrios and housing to get exact neighborhood
-housing_pre_merged = gpd.sjoin(housing_pre, barrios, how="right", op="intersects") 
-housing_post_merged = gpd.sjoin(housing_post, barrios, how="right", op="intersects")
+    #Creating variable price/m2
+    house_data['price_m2'] = house_data.salePrice/house_data.areaBuilt
+    house_data['price_m2'] = np.where(house_data.areaBuilt <10, np.nan, house_data['price_m2'])                 #removing m2 data for abnormally small houses (input error)
+    house_data['price_m2'] = np.where(house_data.salePrice >15000000000, np.nan, house_data['price_m2'])        #removing m2 data for abnormally expensive houses (input error)
+
+    #Dropping duplicates
+    duplicate_criteria = ["propType","rooms","bathrooms","stratum","cityName","salePrice","areaBuilt","companyName"]
+    house_data = house_data.drop_duplicates(duplicate_criteria)
+
+    #----------------------------------------------------------------------------------------------------------------#
+    #------------------------------------| GEODATAFRAME | -----------------------------------------------------------#
+    #----------------------------------------------------------------------------------------------------------------#
+
+    #Reading shapefile that contains `barrios` and `veredas`
+    barrios = gpd.read_file("/Users/puchu/Desktop/WebScraper_Metro2/applied_case/shapes/Barrio_Vereda/Barrio_Vereda.shp")
+
+    #Creating geometry column for houses (in a way that is readable by GeoDataFrame) - GeoDataF requires tuple xy
+    geom = [Point(xy) for xy in zip(house_data.longitude,house_data.latitude)]
+    house_data_geo = gpd.GeoDataFrame(house_data, crs="EPSG:4326", geometry=geom)
+
+    #Merging barrios_shape and housing_data (adding barrio name and barrio geometry)
+    house_data_barrio = gpd.sjoin(house_data_geo, barrios, how="right", op="intersects")  #how='right' to keep barrio polygon and not house point
+
+    #----------------------------------------------------------------------------------------------------------------#
+    #----------------------------------| GROUPBY BARRIO | -----------------------------------------------------------#
+    #----------------------------------------------------------------------------------------------------------------#
+
+    #Droping columns except:
+    house_data_barrio = house_data_barrio[['NOMBRE_COM', 'geometry', 'price_m2']]
+
+    #Aggregating data by COMUNA
+    houses = house_data_barrio.dissolve(by="NOMBRE_COM", aggfunc=['mean', 'count'], dropna=False)
+
+    #Renaming columns to save as .shp
+    houses.rename(columns='_'.join, inplace=True)                       #turn tuple column names into strings
+    houses = houses.rename(columns={houses.columns[0]:'geometry'})      #rename first column to 'geometry
+
+    #Saving file as shape file
+    #houses.to_file("applied_case/shapes/" + shape_names[index])
+    index += 1 
+
+    global_data.append(houses)
 
 
-#----------------------------------------------------------------------------------------------------------------#
-#----------------------------------| GROUPBY BARRIO | -----------------------------------------------------------#
-#----------------------------------------------------------------------------------------------------------------#
+#Dumping all prior information into one dataframe
+global_data[1] = global_data[1].drop(columns = 'geometry',) #This is done to avoid having two 'geometry' columns
+total_data = global_data[0].merge(global_data[1], on=["NOMBRE_COM"])
 
-housing_pre_merged = housing_pre_merged[['NOMBRE_COM', 'geometry', 'price_m2']]
+#Creating change variables
+total_data['diff_price_m2_mean'] = (total_data.price_m2_mean_x-total_data.price_m2_mean_y) / total_data.price_m2_mean_x
+total_data['diff_price_m2_count'] = (total_data.price_m2_count_x-total_data.price_m2_count_y) / total_data.price_m2_count_x
 
-houses = housing_pre_merged.dissolve(by="NOMBRE_COM", aggfunc=['mean', 'count'], dropna=False)
-houses.rename(columns='_'.join, inplace=True)
-houses = houses.rename(columns={houses.columns[0]:'geometry'})
-
-houses.columns
-
-houses.to_file("countries.shp")
-
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-fig, ax = plt.subplots(1, 1)
-divider = make_axes_locatable(ax)
-cax = divider.append_axes("right", size="5%", pad=0.1)
-houses.plot(column='price_m2', ax=ax, legend=True, cax=cax)
+total_data.columns = ['geometry', 'pricePREm', 'countPRE', 'pricePOSTm','countPOST', 'diffPrice', 'diffCount']
 
 
-
-import matplotlib.pyplot as plt
-plt.show()
-
-houses
-
-#houses.columns
+#Writing dataframe to file
+total_data.to_file("applied_case/shapes/final.shp")
 
 
-#housing_pre_analysis = housing_pre_merged.groupby(["NOMBRE_COM"], as_index=False).agg({'salePrice':'mean', 'propID': 'count', 'geometry':'first'})
-#housing_post_analysis = housing_post_merged.groupby(["NOMBRE_COM"], as_index=False).agg({'salePrice':'mean', 'propID': 'count', 'geometry':'first'})
-#
-#pre_analysis_shape = housing_pre_analysis.merge(barrios[['NOMBRE_COM', 'geometry']], on="NOMBRE_COM", how='left')
-#pre_analysis_shape = gpd.GeoDataFrame(pre_analysis_shape, crs="EPSG:4326")
-
-#pre_analysis_shape.to_file('pre_analysis.shp')
-
-#pre_analysis_shape.columns
-#pre_analysis_shape.dissolve(by="")
 
 
 
