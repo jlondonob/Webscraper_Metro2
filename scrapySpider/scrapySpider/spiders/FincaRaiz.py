@@ -87,7 +87,7 @@ class FincaraizSpider(scrapy.Spider):
 
         #4.2. Populate item using clean data from step 3.
 
-        property['source'] = "FINCA RAIZ"
+        property['source'] = "FINCARAIZ"
 
         #Company information
         property['companyId'] = FincaRaiz['ClientId']

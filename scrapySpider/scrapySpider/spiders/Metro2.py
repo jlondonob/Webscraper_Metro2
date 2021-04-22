@@ -55,7 +55,7 @@ class GeoScraper(scrapy.Spider):
         property = PropertyItem()
         
         #Basic Data
-        property['source'] = "METRO CUADRADO"
+        property['source'] = "METROCUADRADO"
 
         property['propID'] = basic['propertyId']
         property['propType'] = basic['propertyType']['nombre'].upper()
