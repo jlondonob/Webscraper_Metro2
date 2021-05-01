@@ -4,7 +4,6 @@
 #-- weekend curfews.
 
 #Importing libraries
-from geopandas.geodataframe import GeoDataFrame
 import pandas as pd
 import numpy as np
 
@@ -15,7 +14,6 @@ from shapely.geometry import Point
 pd.set_option('display.max_columns', None)
 
 files =["/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_22_03_2021.csv", "/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_15_04_21.csv"]
-shape_names = ["pre_data.shp", "post_data.shp"]
 
 #Creating index for shapefile names
 index=0
@@ -31,6 +29,7 @@ for file in files:
     house_data['price_m2'] = np.where(house_data.areaBuilt <10, np.nan, house_data['price_m2'])                 #removing m2 data for abnormally small houses (input error)
     house_data['price_m2'] = np.where(house_data.salePrice >15000000000, np.nan, house_data['price_m2'])        #removing m2 data for abnormally expensive houses (input error)
 
+    house_data['stratum'] = house_data['stratum'].apply(pd.to_numeric, errors = 'coerce')
     #Dropping duplicates
     duplicate_criteria = ["propType","rooms","bathrooms","stratum","cityName","salePrice","areaBuilt","companyName"]
     house_data = house_data.drop_duplicates(duplicate_criteria)
@@ -54,35 +53,42 @@ for file in files:
     #----------------------------------------------------------------------------------------------------------------#
 
     #Droping columns except:
-    house_data_barrio = house_data_barrio[['NOMBRE_COM', 'geometry', 'price_m2']]
+    house_data_barrio = house_data_barrio[['NOMBRE_COM', 'geometry', 'price_m2','stratum']]
 
     #Aggregating data by COMUNA
-    houses = house_data_barrio.dissolve(by="NOMBRE_COM", aggfunc=['mean', 'count'], dropna=False)
+    houses = house_data_barrio.dissolve(by="NOMBRE_COM", aggfunc= ['mean', 'count'], dropna=False)
 
     #Renaming columns to save as .shp
-    houses.rename(columns='_'.join, inplace=True)                       #turn tuple column names into strings
-    houses = houses.rename(columns={houses.columns[0]:'geometry'})      #rename first column to 'geometry
+    houses.rename(columns='_'.join, inplace=True)                       #turn tuple column names to strings
+    houses = houses.rename(columns={houses.columns[0]:'geometry'})      #rename first column to 'geometry'
 
-    #Saving file as shape file
-    #houses.to_file("applied_case/shapes/" + shape_names[index])
+    #Save housing data for firs dataset (for graph of points)
+    #if index==0:
+    #    house_data_geo.to_file("applied_case/shapes/houses.shp")
+
     index += 1 
 
     global_data.append(houses)
 
 
 #Dumping all prior information into one dataframe
-global_data[1] = global_data[1].drop(columns = 'geometry',) #This is done to avoid having two 'geometry' columns
+global_data[1] = global_data[1].drop(columns = 'geometry') #This is done to avoid having two 'geometry' columns
 total_data = global_data[0].merge(global_data[1], on=["NOMBRE_COM"])
 
 #Creating change variables
-total_data['diff_price_m2_mean'] = (total_data.price_m2_mean_x-total_data.price_m2_mean_y) / total_data.price_m2_mean_x
-total_data['diff_price_m2_count'] = (total_data.price_m2_count_x-total_data.price_m2_count_y) / total_data.price_m2_count_x
+total_data['diff_price_m2_mean'] = (total_data.price_m2_mean_y-total_data.price_m2_mean_x) / total_data.price_m2_mean_x
+total_data['diff_price_m2_count'] = (total_data.price_m2_count_y-total_data.price_m2_count_x) / total_data.price_m2_count_x
 
-total_data.columns = ['geometry', 'pricePREm', 'countPRE', 'pricePOSTm','countPOST', 'diffPrice', 'diffCount']
+total_data.columns
+
+total_data.columns = ['geometry', 'pricePREm', 'countPRE', 'stratumPREm','countPREstrat','pricePOSTm','countPOST', 'stratumPOSTm','countPOSTstrat','diffPrice', 'diffCount']
 
 
 #Writing dataframe to file
 total_data.to_file("applied_case/shapes/final.shp")
+#total_data = gpd.read_file("applied_case/shapes/final.shp")
+#
+#total_data.to_csv("total_data_table.csv", sep = ";")
 
 
 
