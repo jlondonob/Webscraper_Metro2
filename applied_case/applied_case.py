@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from shapely.geometry import Point
 pd.set_option('display.max_columns', None)
 
-files =["/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_22_03_2021.csv", "/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_15_04_21.csv"]
+files =["/Users/puchu/Documents/WebScraper_Metro2/scrapySpider/db_FRtest/test_22_03_2021.csv", "/Users/puchu/Documents/WebScraper_Metro2/scrapySpider/db_FRtest/test_15_04_21.csv"]
 
 #Creating index for shapefile names
 index=0
@@ -86,8 +86,8 @@ total_data.columns = ['geometry', 'pricePREm', 'countPRE', 'stratumPREm','countP
 
 #Writing dataframe to file
 total_data.to_file("applied_case/shapes/final.shp")
+
 #total_data = gpd.read_file("applied_case/shapes/final.shp")
-#
 #total_data.to_csv("total_data_table.csv", sep = ";")
 
 

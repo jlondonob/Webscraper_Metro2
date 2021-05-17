@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from shapely.geometry import Point
 pd.set_option('display.max_columns', None)
 
-files =["/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_22_03_2021.csv", "/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_15_04_21.csv"]
+files =["/Users/puchu/Documents/WebScraper_Metro2/scrapySpider/db_FRtest/test_15_04_2021.csv", "/Users/puchu/Documents/WebScraper_Metro2/scrapySpider/db_FRtest/test_28_04_2021.csv"]
 
 #Creating index for shapefile names
 index=0
@@ -29,6 +29,7 @@ for file in files:
     house_data['price_m2'] = np.where(house_data.areaBuilt <10, np.nan, house_data['price_m2'])                 #removing m2 data for abnormally small houses (input error)
     house_data['price_m2'] = np.where(house_data.salePrice >15000000000, np.nan, house_data['price_m2'])        #removing m2 data for abnormally expensive houses (input error)
 
+    house_data['stratum'] = house_data['stratum'].apply(pd.to_numeric, errors = 'coerce')
     #Dropping duplicates
     duplicate_criteria = ["propType","rooms","bathrooms","stratum","cityName","salePrice","areaBuilt","companyName"]
     house_data = house_data.drop_duplicates(duplicate_criteria)
@@ -38,7 +39,7 @@ for file in files:
     #----------------------------------------------------------------------------------------------------------------#
 
     #Reading shapefile that contains `barrios` and `veredas`
-    barrios = gpd.read_file("/Users/puchu/Desktop/WebScraper_Metro2/applied_case/shapes/Barrio_Vereda/Barrio_Vereda.shp")
+    barrios = gpd.read_file("/Users/puchu/Documents/WebScraper_Metro2/applied_case/shapes/Barrio_Vereda/Barrio_Vereda.shp")
 
     #Creating geometry column for houses (in a way that is readable by GeoDataFrame) - GeoDataF requires tuple xy
     geom = [Point(xy) for xy in zip(house_data.longitude,house_data.latitude)]
@@ -55,12 +56,11 @@ for file in files:
     house_data_barrio = house_data_barrio[['NOMBRE_COM', 'geometry', 'price_m2','stratum']]
 
     #Aggregating data by COMUNA
-    houses = house_data_barrio.dissolve(by="NOMBRE_COM", aggfunc=['mean', 'count'], dropna=False)
+    houses = house_data_barrio.dissolve(by="NOMBRE_COM", aggfunc= ['mean', 'count'], dropna=False)
 
-    houses.columns
     #Renaming columns to save as .shp
-    houses.rename(columns='_'.join, inplace=True)                       #turn tuple column names into strings
-    houses = houses.rename(columns={houses.columns[0]:'geometry'})      #rename first column to 'geometry
+    houses.rename(columns='_'.join, inplace=True)                       #turn tuple column names to strings
+    houses = houses.rename(columns={houses.columns[0]:'geometry'})      #rename first column to 'geometry'
 
     #Save housing data for firs dataset (for graph of points)
     #if index==0:
@@ -81,13 +81,14 @@ total_data['diff_price_m2_count'] = (total_data.price_m2_count_y-total_data.pric
 
 total_data.columns
 
-total_data.columns = ['geometry', 'pricePREm', 'countPRE', 'pricePOSTm','countPOST', 'diffPrice', 'diffCount']
+total_data.columns = ['geometry', 'pricePREm', 'countPRE', 'stratumPREm','countPREstrat','pricePOSTm','countPOST', 'stratumPOSTm','countPOSTstrat','diffPrice', 'diffCount']
 
 
 #Writing dataframe to file
-total_data.to_file("applied_case/shapes/final.shp")
-total_data = gpd.read_file("applied_case/shapes/final.shp")
-total_data.to_csv("total_data_table.csv", sep = ";")
+total_data.to_file("applied_case/shapes/final_secondp.shp")
+
+#total_data = gpd.read_file("applied_case/shapes/final.shp")
+#total_data.to_csv("total_data_table.csv", sep = ";")
 
 
 

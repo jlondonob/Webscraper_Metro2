@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from shapely.geometry import Point
 
 
-files =["/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_22_03_2021.csv", "/Users/puchu/Desktop/WebScraper_Metro2/scrapySpider/db_FRtest/test_15_04_21.csv"]
+files =["/Users/puchu/Documents/WebScraper_Metro2/scrapySpider/db_FRtest/test_22_03_2021.csv", "/Users/puchu/Documents/WebScraper_Metro2/scrapySpider/db_FRtest/test_15_04_21.csv"]
 
 houses1 = pd.read_csv(files[0])
 houses2 = pd.read_csv(files[1])
@@ -23,12 +23,12 @@ vars.remove("propertyState")
 
 db = db.groupby(vars, as_index=False).agg({'firstCapture':'first', 'lastCapture': 'last', 'timeMarket':'sum' })
 
-#This is done to compare houses in the first date and unique houses when merged
-len(houses1.index)
+#Compare total unique houses to the number of houses that stayed in the market during both dates
 len(db.index)
+len(db[db['timeMarket']==2])
+
 
 db['stuck'] = np.where(db.timeMarket==2,1,0)
-
 db = db[db['firstCapture']=="22-03-2021"]
 geom = [Point(xy) for xy in zip(db.longitude,db.latitude)]
 
