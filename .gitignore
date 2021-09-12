@@ -185,4 +185,7 @@ dmypy.json
 # vscode
 .vscode
 
+#Sensitive data
+downloadUpload.py
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,jupyternotebooks,python
